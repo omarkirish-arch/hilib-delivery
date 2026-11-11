@@ -572,11 +572,11 @@
 
             <div class="input-group" style="text-align: left;">
                 <label>Magaca Maamulaha (Username)</label>
-                <input type="text" id="inlineAdminUser" value="admin" placeholder="Tusaale: admin">
+                <input type="text" id="inlineAdminUser" placeholder="Geli magaca maamulaha (Username)" autocomplete="off">
             </div>
             <div class="input-group" style="text-align: left;">
                 <label>Furaha Sirta ah (Password)</label>
-                <input type="password" id="inlineAdminPass" value="admin123" placeholder="••••••••">
+                <input type="password" id="inlineAdminPass" placeholder="Geli furaha sirta ah (Password)" autocomplete="off">
             </div>
 
             <button class="btn-add" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="inlineLoginAdmin()">
@@ -776,6 +776,12 @@
             } else {
                 authGate.style.display = 'block';
                 mainContent.style.display = 'none';
+                const userField = document.getElementById('inlineAdminUser');
+                const passField = document.getElementById('inlineAdminPass');
+                if (userField) userField.value = '';
+                if (passField) passField.value = '';
+                const errorEl = document.getElementById('adminLoginError');
+                if (errorEl) errorEl.style.display = 'none';
             }
         }
 
@@ -795,6 +801,10 @@
 
         function inlineLogoutAdmin() {
             localStorage.removeItem('hilib_admin_logged_in');
+            const userField = document.getElementById('inlineAdminUser');
+            const passField = document.getElementById('inlineAdminPass');
+            if (userField) userField.value = '';
+            if (passField) passField.value = '';
             checkAdminAuthAndRender();
         }
 
