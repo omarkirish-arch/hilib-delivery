@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Hilib Delivery</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Material Icons for Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .auth-container {
+            padding: 40px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .auth-logo .material-icons-round {
+            font-size: 64px;
+            color: var(--accent-orange);
+            background: rgba(255,122,0,0.1);
+            padding: 20px;
+            border-radius: 50%;
+            margin-bottom: 16px;
+        }
+        .auth-title {
+            font-size: 1.8rem;
+            color: var(--dark-brown);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+        }
+        .auth-input-group {
+            margin-bottom: 20px;
+        }
+        .auth-input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 8px;
+        }
+        .auth-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--white);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 0 16px;
+            transition: all 0.2s;
+        }
+        .auth-input-wrapper:focus-within {
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 0 4px rgba(255,122,0,0.1);
+        }
+        .auth-input-wrapper .material-icons-round {
+            color: var(--text-secondary);
+            font-size: 20px;
+        }
+        .auth-input-wrapper input {
+            flex: 1;
+            padding: 16px 12px;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--text-primary);
+            outline: none;
+        }
+        .auth-btn {
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            margin-top: 12px;
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.1s;
+        }
+        .auth-btn:active {
+            transform: scale(0.98);
+        }
+        .auth-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+        .auth-link a {
+            color: var(--accent-orange);
+            font-weight: 700;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" style="background: var(--bg-color);">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <span class="material-icons-round">local_mall</span>
+                <h1 class="auth-title">Ku soo dhawaow</h1>
+                <p class="auth-subtitle">Fadlan gal koontadaada si aad u dalbato.</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="auth-input-group">
+                    <label>Lambarka Telefoonka</label>
+                    <div class="auth-input-wrapper">
+                        <span class="material-icons-round">phone_iphone</span>
+                        <input type="tel" id="loginPhone" placeholder="Tusaale: 61XXXXXXX" required>
+                    </div>
+                </div>
+                
+                <div class="auth-input-group">
+                    <label>Furaha Sirta ah (Password)</label>
+                    <div class="auth-input-wrapper">
+                        <span class="material-icons-round">lock</span>
+                        <input type="password" id="loginPassword" placeholder="Geli furahaaga sirta ah" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="auth-btn">Gal Koontada</button>
+                
+                <div class="auth-link">
+                    Miyadan lahayn koonto? <a href="register.html">Is Diiwaangali Halkan</a>
+                </div>
+                
+                <div class="auth-link" style="margin-top: 12px;">
+                    <a href="index.html" style="color: var(--text-secondary); text-decoration: underline;">Dib ugu noqo Bogga Hore</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            // Check users
+            const users = JSON.parse(localStorage.getItem('hilib_users') || '[]');
+            const user = users.find(u => u.phone === phone && u.password === password);
+            
+            if(user) {
+                // Set session
+                localStorage.setItem('hilib_currentUser', JSON.stringify({ name: user.name, phone: user.phone }));
+                
+                // Get redirect url, or go to home
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirect = urlParams.get('redirect') || 'index.html';
+                
+                window.location.href = redirect;
+            } else {
+                alert("Lambarka ama Furaha Sirta ah waa khalad. Fadlan hubi macluumaadkaaga.");
+            }
+        });
+    </script>
+</body>
+</html>

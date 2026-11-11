@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Hilib Delivery</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Material Icons for Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .auth-container {
+            padding: 40px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .auth-logo .material-icons-round {
+            font-size: 56px;
+            color: var(--accent-orange);
+            background: rgba(255,122,0,0.1);
+            padding: 16px;
+            border-radius: 50%;
+            margin-bottom: 12px;
+        }
+        .auth-title {
+            font-size: 1.6rem;
+            color: var(--dark-brown);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 24px;
+        }
+        .auth-input-group {
+            margin-bottom: 16px;
+        }
+        .auth-input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 6px;
+        }
+        .auth-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--white);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 0 16px;
+            transition: all 0.2s;
+        }
+        .auth-input-wrapper:focus-within {
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 0 4px rgba(255,122,0,0.1);
+        }
+        .auth-input-wrapper .material-icons-round {
+            color: var(--text-secondary);
+            font-size: 20px;
+        }
+        .auth-input-wrapper input {
+            flex: 1;
+            padding: 14px 12px;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--text-primary);
+            outline: none;
+        }
+        .auth-btn {
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            margin-top: 12px;
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.1s;
+        }
+        .auth-btn:active {
+            transform: scale(0.98);
+        }
+        .auth-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+        .auth-link a {
+            color: var(--accent-orange);
+            font-weight: 700;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" style="background: var(--bg-color);">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <span class="material-icons-round">person_add</span>
+                <h1 class="auth-title">Is Diiwaangali</h1>
+                <p class="auth-subtitle">Sameyso koonto si aad u dalbato cuntada.</p>
+            </div>
+            
+            <form id="registerForm">
+                <div class="auth-input-group">
+                    <label>Magaca Buuxa</label>
+                    <div class="auth-input-wrapper">
+                        <span class="material-icons-round">person</span>
+                        <input type="text" id="regName" placeholder="Tusaale: Cali Faarax" required>
+                    </div>
+                </div>
+                
+                <div class="auth-input-group">
+                    <label>Lambarka Telefoonka</label>
+                    <div class="auth-input-wrapper">
+                        <span class="material-icons-round">phone_iphone</span>
+                        <input type="tel" id="regPhone" placeholder="Tusaale: 61XXXXXXX" required>
+                    </div>
+                </div>
+                
+                <div class="auth-input-group">
+                    <label>Cinwaanka</label>
+                    <div class="auth-input-wrapper">
+                        <span class="material-icons-round">place</span>
+                        <input type="text" id="regAddress" placeholder="Tusaale: Degmada Hodan" required>
+                    </div>
+                </div>
+                
+                <div class="auth-input-group">
+                    <label>Furaha Sirta ah (Password)</label>
+                    <div class="auth-input-wrapper">
+                        <span class="material-icons-round">lock</span>
+                        <input type="password" id="regPassword" placeholder="Abuur fure sir ah" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="auth-btn">Diiwaangali Koontada</button>
+                
+                <div class="auth-link">
+                    Horey ma isku diiwaangalisay? <a href="login.html">Gal Halkan</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const address = document.getElementById('regAddress').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            
+            const users = JSON.parse(localStorage.getItem('hilib_users') || '[]');
+            
+            // Basic validation
+            if (users.some(u => u.phone === phone)) {
+                alert("Lambarkan telefoonka horay ayaa loo diiwaangaliyey! Fadlan gal koontada (Login).");
+                return;
+            }
+            
+            // Add new user
+            const newUser = {
+                id: 'USR-' + Date.now(),
+                name: name,
+                phone: phone,
+                address: address,
+                password: password,
+                dateJoined: new Date().toLocaleDateString()
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('hilib_users', JSON.stringify(users));
+            
+            // Auto login after registration
+            localStorage.setItem('hilib_currentUser', JSON.stringify({ name: newUser.name, phone: newUser.phone }));
+            
+            alert('Waa lagu diiwaangaliyey si guul ah! Hadda waad dalban kartaa.');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

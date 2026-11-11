@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order - Hilib Delivery</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Material Icons for Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Layout container here -->
+        <header class="header">
+            <button class="icon-button" onclick="window.location.href='index.html'"><span class="material-icons-round">arrow_back</span></button>
+            <h1>Track Order</h1>
+            <button class="icon-button help-btn"><span class="material-icons-round help-icon">question_mark</span></button>
+        </header>
+
+        <main class="content" id="tracking-content">
+            <!-- Dynamic content will be loaded here -->
+        </main>
+
+    <!-- Script to render the tracking details dynamically -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('tracking-content');
+            const orders = JSON.parse(localStorage.getItem('hilib_orders') || '[]');
+            
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; margin-top: 100px; color: var(--text-secondary);">
+                        <span class="material-icons-round" style="font-size: 64px; opacity: 0.2; margin-bottom: 16px;">receipt_long</span>
+                        <h2>Wali wax dalab ah ma samaynin.</h2>
+                        <p style="margin-top: 8px;">Fadlan ka adeego bogga hore si aad u aragto dalabkaaga halkan.</p>
+                        <a href="index.html" class="btn-add" style="display: inline-block; text-decoration: none; background: var(--accent-orange); color: white; padding: 12px 24px; border-radius: 12px; font-weight: 700; margin-top: 24px; box-shadow: var(--shadow-soft);">Aad Bogga Hore</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let finalHtml = '';
+
+            // Iterate backwards to show newest first
+            for (let i = orders.length - 1; i >= 0; i--) {
+                const order = orders[i];
+                
+                // Map status to timeline state
+                let placedClass = 'completed';
+                let prepClass = 'active'; // Default
+                let deliveryClass = 'pending';
+                let deliveredClass = 'pending';
+                
+                let statusBadge = 'Weli waa la wadaa';
+                let badgeBg = '#FFF3E0';
+                let badgeColor = '#EF6C00';
+
+                if (order.status === 'pending') {
+                    prepClass = 'active';
+                } else if (order.status === 'delivery') {
+                    prepClass = 'completed';
+                    deliveryClass = 'active';
+                    statusBadge = 'Waddada ayuu kusoo jiraa';
+                    badgeBg = '#E3F2FD';
+                    badgeColor = '#1565C0';
+                } else if (order.status === 'delivered') {
+                    prepClass = 'completed';
+                    deliveryClass = 'completed';
+                    deliveredClass = 'completed';
+                    statusBadge = 'Waad heshay';
+                    badgeBg = '#E8F5E9';
+                    badgeColor = '#2E7D32';
+                } else if (order.status === 'cancelled') {
+                    prepClass = '';
+                    deliveryClass = '';
+                    deliveredClass = '';
+                    statusBadge = 'La Kansalay';
+                    badgeBg = '#FFEBEE';
+                    badgeColor = '#C62828';
+                }
+
+                // Build items list
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    const priceNum = parseFloat(String(item.price).replace('$', '')) || 0;
+                    const itemPrice = priceNum * item.qty;
+                    itemsHtml += `
+                    <div class="order-item" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <div class="item-qty" style="background: var(--white); width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">${item.qty}x</div>
+                        <div class="item-name" style="flex: 1; font-weight: 500; font-size: 0.95rem;">${item.name}</div>
+                        <div class="item-price" style="font-weight: 600;">$${itemPrice.toFixed(2)}</div>
+                    </div>`;
+                });
+
+                finalHtml += `
+                <div style="margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px dashed rgba(0,0,0,0.05);">
+                    <div class="column-left">
+                        <!-- Map Card -->
+                        <div class="card map-card" style="height: 200px;">
+                            <div class="map-container">
+                                <img src="images/map_bg.png" alt="Map" class="map-bg">
+                                <div class="pin pin-shop"><span class="material-icons-round">home_work</span></div>
+                                <div class="pin pin-driver"><span class="material-icons-round">directions_bike</span></div>
+                                <svg class="route-line" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                    <path d="M 70 30 Q 80 60 45 60 T 30 75" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="6,4"></path>
+                                </svg>
+                            </div>
+                            ${order.status === 'pending' || order.status === 'delivery' ? `
+                            <div class="eta-bubble" style="padding: 8px 12px; bottom: 10px;">
+                                <div class="eta-text">
+                                    <span class="eta-label" style="font-size: 0.6rem;">WAKHTIGA LA FILAYO</span>
+                                    <span class="eta-time" style="font-size: 1.1rem;">45 Daqiiqo</span>
+                                </div>
+                                <div class="eta-icon-wrapper" style="width: 32px; height: 32px;">
+                                    <span class="material-icons-round" style="font-size: 18px;">timer</span>
+                                </div>
+                            </div>` : order.status === 'delivered' ? `
+                            <div class="eta-bubble" style="background: #E8F5E9; padding: 8px 12px; bottom: 10px;">
+                                <div class="eta-text">
+                                    <span class="eta-label" style="color: #2E7D32; font-size: 0.6rem;">XAAALADA</span>
+                                    <span class="eta-time" style="color: #2E7D32; font-size: 1.1rem;">La keenay</span>
+                                </div>
+                                <div class="eta-icon-wrapper" style="background: #C8E6C9; color: #2E7D32; width: 32px; height: 32px;">
+                                    <span class="material-icons-round" style="font-size: 18px;">check_circle</span>
+                                </div>
+                            </div>` : `
+                            <div class="eta-bubble" style="background: #FFEBEE; padding: 8px 12px; bottom: 10px;">
+                                <div class="eta-text">
+                                    <span class="eta-label" style="color: #C62828; font-size: 0.6rem;">XAAALADA</span>
+                                    <span class="eta-time" style="color: #C62828; font-size: 1.1rem;">Ka noqotay</span>
+                                </div>
+                                <div class="eta-icon-wrapper" style="background: #FFCDD2; color: #C62828; width: 32px; height: 32px;">
+                                    <span class="material-icons-round" style="font-size: 18px;">cancel</span>
+                                </div>
+                            </div>`}
+                        </div>
+
+                        <!-- Timeline Card -->
+                        <div class="card timeline-card">
+                            <div class="timeline-header">
+                                <h2>Order ${order.id}</h2>
+                                <span class="badge" style="background: ${badgeBg}; color: ${badgeColor}; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem;">${statusBadge.toUpperCase()}</span>
+                            </div>
+                            <div class="timeline">
+                                <div class="timeline-item ${placedClass}">
+                                    <div class="icon-circle"><span class="material-icons-round">receipt_long</span></div>
+                                    <div class="timeline-content">
+                                        <h3>Order-kiisa waa la diray</h3>
+                                        <p>${order.date}</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item ${prepClass}">
+                                    <div class="icon-circle"><span class="material-icons-round">restaurant</span></div>
+                                    <div class="timeline-content">
+                                        <h3>Waa la diyaarinayaa</h3>
+                                        <p>Cuntada ayaa la diyaarinayaa</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item ${deliveryClass}">
+                                    <div class="icon-circle"><span class="material-icons-round">moped</span></div>
+                                    <div class="timeline-content">
+                                        <h3>Waddada Lagu Soo Jiraa</h3>
+                                        <p>Dalabkaagu waa la soo qaaday</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item ${deliveredClass}">
+                                    <div class="icon-circle"><span class="material-icons-round">check_circle</span></div>
+                                    <div class="timeline-content">
+                                        <h3>Waa La Keenay</h3>
+                                        <p>Macluumaadka</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column-right">
+                        <!-- Driver Card -->
+                        <div class="card driver-card">
+                            <div class="driver-info">
+                                <div class="driver-avatar-wrapper">
+                                    <img src="images/driver_avatar.png" alt="Driver" class="driver-avatar">
+                                    <span class="status-dot"></span>
+                                </div>
+                                <div class="driver-details">
+                                    <h3>Darawalka</h3>
+                                    <p>Wuxuu kuu wadaa dalabkaaga</p>
+                                </div>
+                            </div>
+                            <div class="driver-actions">
+                                <button class="action-btn call-btn" onclick="alert('Wacaya darawalka...')"><span class="material-icons-round">call</span></button>
+                            </div>
+                        </div>
+
+                        <!-- Order Details Card -->
+                        <div class="card order-details-card" style="background: #EAE6DF; margin-top: 16px;">
+                            <h3 style="font-size: 1.05rem; font-weight: 600; margin-bottom: 16px;">Dalabkaaga (#${order.id})</h3>
+                            <div class="order-items">
+                                ${itemsHtml}
+                            </div>
+                        </div>
+
+                        <!-- Total and Address Card -->
+                        <div class="card total-card" style="margin-top: 16px; background: linear-gradient(135deg, #945318 0%, #7A4210 100%); color: white;">
+                            <div class="total-content">
+                                <span class="total-label" style="opacity: 0.8; font-size: 0.85rem;">Wadarta Guud</span>
+                                <h2 class="total-amount" style="font-size: 2rem; font-weight: 700; margin: 4px 0 24px;">$${parseFloat(order.total).toFixed(2)}</h2>
+                                <div class="delivery-address" style="display: flex; gap: 12px;">
+                                    <div class="address-icon-wrapper">
+                                        <span class="material-icons-round location-icon" style="background: white; color: var(--dark-brown); border-radius: 50%; padding: 4px; font-size: 16px;">location_on</span>
+                                    </div>
+                                    <div>
+                                        <span class="address-label" style="opacity: 0.8; font-size: 0.75rem;">Cinwaanka Loo Wadaa</span>
+                                        <h4 class="address-text" style="font-size: 0.95rem; font-weight: 600;">${order.address}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="material-icons-round bg-icon" style="position: absolute; right: -20px; bottom: -20px; font-size: 150px; color: rgba(0,0,0,0.08); z-index: 1;">shopping_bag</span>
+                        </div>
+                        <button onclick="deleteOrder('${order.id}')" style="margin-top: 16px; width: 100%; padding: 16px; background: transparent; color: #FF3B30; border: 1px solid rgba(255, 59, 48, 0.3); border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255, 59, 48, 0.05)'" onmouseout="this.style.background='transparent'">Tirtir Dalabka (Delete Order)</button>
+                    </div>
+                </div>
+                `;
+            }
+
+            container.innerHTML = finalHtml;
+        });
+
+        window.deleteOrder = function(orderId) {
+            if (confirm('Ma hubtaa inaad tirtirayso dalabkan?')) {
+                const allOrders = JSON.parse(localStorage.getItem('hilib_orders') || '[]');
+                const orderIndex = allOrders.findIndex(o => o.id === orderId);
+                if (orderIndex > -1) {
+                    allOrders.splice(orderIndex, 1); // Delete completely
+                    localStorage.setItem('hilib_orders', JSON.stringify(allOrders));
+                    window.location.reload();
+                }
+            }
+        };
+    </script>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <span class="material-icons-round">home</span>
+                <span>HOME</span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <span class="material-icons-round">search</span>
+                <span>SEARCH</span>
+            </a>
+            <a href="orders.html" class="nav-item active">
+                <span class="material-icons-round">receipt_long</span>
+                <span>ORDERS</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="material-icons-round">person</span>
+                <span>PROFILE</span>
+            </a>
+        </nav>
+    </div>
+</body>
+</html>

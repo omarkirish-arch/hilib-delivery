@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History - Hilib Delivery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <a href="profile.html" class="icon-button" style="text-decoration: none;"><span class="material-icons-round">arrow_back</span></a>
+            <h1 style="font-size: 1.25rem;">Taariikhda Dalabaadka</h1>
+            <div style="width: 44px;"></div> <!-- Spacer -->
+        </header>
+
+        <main class="content" style="padding-top: 10px; padding-bottom: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+
+                <!-- Past Order 1 -->
+                <div class="card" style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div>
+                            <h3 style="font-size: 1rem; color: var(--dark-brown);">Dalab #8291</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">24 Mar 2026, 04:30 PM</p>
+                        </div>
+                        <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">$40.50</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                        <span class="material-icons-round" style="font-size: 16px; color: #00D366;">check_circle</span>
+                        <span style="font-size: 0.85rem; font-weight: 600; color: #00D366;">Si guul leh ayaa loo keenay</span>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <img src="images/camel_meat.png" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;">
+                        <img src="images/wagyu_steak.png" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;">
+                    </div>
+                    
+                    <button style="width: 100%; margin-top: 16px; padding: 12px; border-radius: 12px; border: 1px solid var(--accent-orange); background: transparent; color: var(--accent-orange); font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+                        Dib u dalbo (Reorder)
+                    </button>
+                </div>
+
+                <!-- Past Order 2 -->
+                <div class="card" style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div>
+                            <h3 style="font-size: 1rem; color: var(--dark-brown);">Dalab #8105</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">12 Mar 2026, 11:15 AM</p>
+                        </div>
+                        <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">$18.00</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                        <span class="material-icons-round" style="font-size: 16px; color: #00D366;">check_circle</span>
+                        <span style="font-size: 0.85rem; font-weight: 600; color: #00D366;">Si guul leh ayaa loo keenay</span>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <img src="images/goat_meat.png" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;">
+                    </div>
+                    
+                    <button style="width: 100%; margin-top: 16px; padding: 12px; border-radius: 12px; border: 1px solid var(--accent-orange); background: transparent; color: var(--accent-orange); font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+                        Dib u dalbo (Reorder)
+                    </button>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,143 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  DRIVER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  READY_FOR_PICKUP
+  OUT_FOR_DELIVERY
+  ARRIVED_AT_LOCATION
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id                String         @id @default(uuid())
+  email             String         @unique
+  passwordHash      String
+  fullName          String
+  phone             String
+  role              Role           @default(CUSTOMER)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  addresses         Address[]
+  ordersPlaced      Order[]        @relation("CustomerOrders")
+  ordersDelivered   Order[]        @relation("DriverOrders")
+  driverProfile     DriverProfile?
+}
+
+model Address {
+  id                   String   @id @default(uuid())
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label                String   // ex: "Maison", "Bureau"
+  streetAddress        String
+  district             String
+  city                 String
+  latitude             Float
+  longitude            Float
+  deliveryInstructions String?
+  isDefault            Boolean  @default(false)
+  orders               Order[]
+}
+
+model DriverProfile {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isOnline         Boolean  @default(false)
+  currentLatitude  Float?
+  currentLongitude Float?
+  vehicleType      String?  // ex: "Moto", "Voiture"
+  licensePlate     String?
+  rating           Float    @default(5.0)
+  totalDeliveries  Int      @default(0)
+  totalEarnings    Float    @default(0.0)
+  updatedAt        DateTime @updatedAt
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    // ex: "Lo'da (Bœuf)", "Ariga (Chèvre)", "Geela (Chameau)"
+  slug        String    @unique
+  icon        String?
+  products    Product[]
+}
+
+model Product {
+  id             String      @id @default(uuid())
+  categoryId     String
+  category       Category    @relation(fields: [categoryId], references: [id])
+  name           String
+  description    String?
+  pricePerKg     Float
+  stockKg        Float
+  imageUrl       String?
+  isAvailable    Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  orderItems     OrderItem[]
+}
+
+model Order {
+  id                 String         @id @default(uuid())
+  orderNumber        String         @unique
+  customerId         String
+  customer           User           @relation("CustomerOrders", fields: [customerId], references: [id])
+  driverId           String?
+  driver             User?          @relation("DriverOrders", fields: [driverId], references: [id])
+  shippingAddressId  String
+  shippingAddress    Address        @relation(fields: [shippingAddressId], references: [id])
+  
+  status             OrderStatus    @default(PENDING)
+  totalAmount        Float
+  deliveryFee        Float          @default(3.0)
+  paymentMethod      String         // "EVC_PLUS", "ZAAD", "CASH"
+  paymentStatus      String         @default("PENDING") // "PENDING", "PAID"
+  
+  otpCode            String         // Code à 4 chiffres sécurisé généré lors de la commande
+  cancellationReason String?
+  
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  
+  items              OrderItem[]
+  deliveryLogs       DeliveryLog[]
+}
+
+model OrderItem {
+  id         String  @id @default(uuid())
+  orderId    String
+  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product @relation(fields: [productId], references: [id])
+  weightKg   Float
+  unitPrice  Float
+  subtotal   Float
+}
+
+model DeliveryLog {
+  id               String      @id @default(uuid())
+  orderId          String
+  order            Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  statusTransition OrderStatus
+  latitude         Float?
+  longitude        Float?
+  note             String?
+  createdAt        DateTime    @default(now())
+}
+

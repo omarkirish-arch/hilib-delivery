@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hilib Delivery - Store & Admin Portal</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Material Icons for Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        /* === UNIFIED PORTAL STYLING === */
+        :root {
+            --portal-dark: #1F1A17;
+            --portal-orange: #FF7A00;
+            --portal-bg: #F8F9FA;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #EAE6DF;
+            font-family: 'Outfit', sans-serif;
+            display: block; /* Override flex from styles.css for full portal layout */
+            min-height: 100vh;
+        }
+
+        /* Top Master Control Bar (Hal Meel Switcher) */
+        .master-portal-bar {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            background: rgba(31, 26, 23, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .portal-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #FFFFFF;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .portal-brand-badge {
+            background: var(--portal-orange);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .portal-switcher {
+            display: flex;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 4px;
+            border-radius: 30px;
+            gap: 4px;
+        }
+
+        .portal-btn {
+            border: none;
+            background: transparent;
+            color: #DDD;
+            padding: 8px 18px;
+            border-radius: 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+            outline: none;
+        }
+
+        .portal-btn .material-icons-round {
+            font-size: 18px;
+        }
+
+        .portal-btn:hover {
+            color: #FFF;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .portal-btn.active {
+            background: var(--portal-orange);
+            color: #FFFFFF;
+            box-shadow: 0 2px 10px rgba(255, 122, 0, 0.4);
+        }
+
+        /* Views wrapper */
+        .view-panel {
+            display: none;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        .view-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* === STORE SPECIFIC CONTAINER === */
+        #visitorStoreView {
+            background-color: #EAE6DF;
+            min-height: calc(100vh - 60px);
+        }
+
+        #visitorStoreView .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--bg-color);
+            min-height: calc(100vh - 60px);
+            box-shadow: 0 0 30px rgba(0,0,0,0.06);
+            position: relative;
+        }
+
+        /* Quick Admin shortcut in Store header */
+        .admin-quick-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 122, 0, 0.12);
+            color: var(--accent-orange);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+        }
+
+        .admin-quick-tag:hover {
+            background: var(--accent-orange);
+            color: white;
+        }
+
+        /* === ADMIN SPECIFIC WRAPPER === */
+        #adminDashboardView {
+            background: #F0F2F5;
+            min-height: calc(100vh - 60px);
+            padding: 24px 16px 60px;
+        }
+
+        .admin-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .admin-tab {
+            padding: 12px 20px;
+            border-radius: 12px;
+            background: white;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+
+        .admin-tab .material-icons-round {
+            font-size: 20px;
+        }
+
+        .admin-tab.active {
+            background: var(--accent-orange);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 122, 0, 0.3);
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card-desktop {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        }
+
+        .order-card {
+            border-left: 5px solid var(--accent-orange);
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 12px;
+        }
+
+        .badge {
+            background: #E8F5E9;
+            color: #2E7D32;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge.pending {
+            background: #FFF3E0;
+            color: #EF6C00;
+        }
+
+        .badge.out-for-delivery {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .badge.cancelled {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn-sm:hover {
+            opacity: 0.9;
+        }
+
+        .btn-edit {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .btn-delete {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .btn-add {
+            background: var(--accent-orange);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(255, 122, 0, 0.3);
+            text-decoration: none;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.95rem;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        /* Inline Admin Auth Card */
+        .admin-auth-box {
+            background: white;
+            max-width: 420px;
+            margin: 60px auto;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .portal-btn-label {
+                display: none;
+            }
+            .master-portal-bar {
+                padding: 8px 12px;
+            }
+            .portal-brand-text {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 1. TOP MASTER CONTROL BAR: UNIFYING VISITOR INDEX & ADMIN (HAL MEEL) -->
+    <header class="master-portal-bar">
+        <div class="portal-brand" onclick="switchView('store')">
+            <span class="material-icons-round" style="color: var(--portal-orange); font-size: 26px;">local_shipping</span>
+            <span class="portal-brand-text">Hilib Delivery</span>
+            <span class="portal-brand-badge">Portal</span>
+        </div>
+
+        <div class="portal-switcher">
+            <button id="btnSwitchStore" class="portal-btn active" onclick="switchView('store')" title="Bogga Macaamiisha">
+                <span class="material-icons-round">storefront</span>
+                <span class="portal-btn-label">Macaamiisha (Store)</span>
+            </button>
+            <button id="btnSwitchAdmin" class="portal-btn" onclick="switchView('admin')" title="Qaybta Maamulka">
+                <span class="material-icons-round">admin_panel_settings</span>
+                <span class="portal-btn-label">Maamulka (Admin)</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- 2. VISITOR STORE VIEW (Dada Soo Booqanaya)  -->
+    <!-- ========================================== -->
+    <div id="visitorStoreView" class="view-panel active">
+        <div class="app-container">
+            <!-- Clean Home Header -->
+            <header class="header home-header-clean">
+                <div class="user-greeting">
+                    <p>Kusoo Dhawaow,</p>
+                    <h1 id="home-user-name">Macaamiil</h1>
+                </div>
+                <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+                    <button class="admin-quick-tag" onclick="switchView('admin')">
+                        <span class="material-icons-round" style="font-size: 16px;">admin_panel_settings</span>
+                        <span>Admin</span>
+                    </button>
+                    <button class="icon-button"><span class="material-icons-round">notifications_none</span></button>
+                    <a href="cart.html" class="icon-button cart-btn">
+                        <span class="material-icons-round">shopping_cart</span>
+                        <span class="cart-badge">0</span>
+                    </a>
+                </div>
+            </header>
+
+            <main class="content home-content-clean">
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <span class="material-icons-round">search</span>
+                    <input type="text" id="homeSearchInput" placeholder="Raadi nooca hilibka aad rabto...">
+                    <button class="filter-btn"><span class="material-icons-round">tune</span></button>
+                </div>
+
+                <!-- Promotion Banner -->
+                <div class="card total-card promo-card">
+                    <div class="total-content">
+                        <span class="total-label" style="opacity: 0.9;">Dalab Gaar Ah!</span>
+                        <h2 class="total-amount" style="margin-bottom: 12px;">20% Qiimo Dhimis</h2>
+                        <div class="delivery-address">
+                            <div class="address-icon-wrapper" style="flex-direction: row; gap: 8px;">
+                                <span class="material-icons-round"
+                                    style="background: white; color: var(--accent-orange); border-radius: 50%; padding: 4px; font-size: 14px;">local_offer</span>
+                                <span class="address-text"
+                                    style="color: white; font-weight: 500; font-size: 0.9rem;">Hilibka oo dhan</span>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="material-icons-round bg-icon"
+                        style="top: -20px; right: -20px; color: rgba(255,255,255,0.15);">redeem</span>
+                </div>
+
+                <!-- Categories -->
+                <div class="categories">
+                    <div class="category-item active" data-filter="all">
+                        <div class="cat-icon"><span class="material-icons-round">grid_view</span></div>
+                        <span>Dhan</span>
+                    </div>
+                    <div class="category-item" data-filter="lo'da">
+                        <div class="cat-icon"><span class="material-icons-round">outdoor_grill</span></div>
+                        <span>Lo'da</span>
+                    </div>
+                    <div class="category-item" data-filter="ariga|ari|goat">
+                        <div class="cat-icon"><span class="material-icons-round">restaurant</span></div>
+                        <span>Ariga</span>
+                    </div>
+                    <div class="category-item" data-filter="geela|geel|camel">
+                        <div class="cat-icon"><span class="material-icons-round">kebab_dining</span></div>
+                        <span>Geela</span>
+                    </div>
+                    <div class="category-item" data-filter="idaha|ido|lamb">
+                        <div class="cat-icon"><span class="material-icons-round">local_dining</span></div>
+                        <span>Idaha</span>
+                    </div>
+                    <div class="category-item" data-filter="digaag|dooro|chicken">
+                        <div class="cat-icon"><span class="material-icons-round">egg_alt</span></div>
+                        <span>Digaaga</span>
+                    </div>
+                </div>
+
+                <!-- Section Header -->
+                <div class="section-header">
+                    <h2>Hilibka Ugu Wanaagsan</h2>
+                    <span style="font-size: 0.85rem; color: var(--accent-orange); font-weight: 600; cursor: pointer;" onclick="switchView('admin')">+ Ku dar hilib cusub</span>
+                </div>
+
+                <!-- Products Grid (Clean Cards) -->
+                <div class="product-grid" id="mainProductGrid">
+                    <!-- Products will load dynamically here -->
+                </div>
+
+                <br><br><br>
+            </main>
+
+            <!-- Bottom Navigation -->
+            <nav class="bottom-nav">
+                <a href="javascript:void(0);" class="nav-item active">
+                    <span class="material-icons-round">home</span>
+                    <span>HOME</span>
+                </a>
+                <a href="search.html" class="nav-item">
+                    <span class="material-icons-round">search</span>
+                    <span>SEARCH</span>
+                </a>
+                <a href="orders.html" class="nav-item">
+                    <span class="material-icons-round">receipt_long</span>
+                    <span>ORDERS</span>
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <span class="material-icons-round">person</span>
+                    <span>PROFILE</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Quantity Modal (Store View) -->
+    <div id="qty-modal" class="checkout-modal">
+        <div class="modal-content card" style="text-align: center;">
+            <h2 style="font-size: 1.2rem; color: var(--dark-brown); margin-bottom: 8px;">Imisa kiilo ayaad rabtaa?</h2>
+            <p id="qty-product-name" style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 20px;"></p>
+
+            <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 24px;">
+                <button id="qty-minus"
+                    style="width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--bg-color); font-size: 24px; cursor: pointer; color: var(--dark-brown); box-shadow: 0 2px 5px rgba(0,0,0,0.05);">-</button>
+                <div style="display: flex; align-items: baseline; gap: 4px;">
+                    <span id="qty-value"
+                        style="font-size: 1.8rem; font-weight: 700; color: var(--text-primary);">1</span>
+                    <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 600;">Kg</span>
+                </div>
+                <button id="qty-plus"
+                    style="width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--accent-orange-light); color: var(--accent-orange); font-size: 24px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">+</button>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <button id="cancel-qty-btn" class="modal-btn cancel-btn">Ka noqo</button>
+                <button id="confirm-qty-btn" class="modal-btn confirm-btn" style="flex: 1.5;">Kudar Dambiisha</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification (Store View) -->
+    <div id="toast" class="toast"></div>
+
+
+    <!-- ========================================== -->
+    <!-- 3. ADMIN DASHBOARD VIEW (Qaybta Maamulka)  -->
+    <!-- ========================================== -->
+    <div id="adminDashboardView" class="view-panel">
+        <!-- Auth Gate Card (Shows if not logged in) -->
+        <div id="adminAuthGate" class="admin-auth-box" style="display: none;">
+            <div style="width: 70px; height: 70px; background: rgba(255,122,0,0.1); color: var(--accent-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <span class="material-icons-round" style="font-size: 36px;">admin_panel_settings</span>
+            </div>
+            <h2 style="font-size: 1.5rem; color: #333; margin-bottom: 8px;">Gelitaanka Maamulka</h2>
+            <p style="color: #666; font-size: 0.95rem; margin-bottom: 24px;">Fadlan geli Username-ka iyo Password-ka maamulaha.</p>
+            
+            <div id="adminLoginError" style="display:none; color: #FF3B30; background: #FFEBEE; padding: 10px; border-radius: 8px; margin-bottom: 16px; font-size: 0.9rem;">
+                Magaca ama Furaha sirta ah waa khalad!
+            </div>
+
+            <div class="input-group" style="text-align: left;">
+                <label>Magaca Maamulaha (Username)</label>
+                <input type="text" id="inlineAdminUser" value="admin" placeholder="Tusaale: admin">
+            </div>
+            <div class="input-group" style="text-align: left;">
+                <label>Furaha Sirta ah (Password)</label>
+                <input type="password" id="inlineAdminPass" value="admin123" placeholder="••••••••">
+            </div>
+
+            <button class="btn-add" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="inlineLoginAdmin()">
+                Gal Qaybta Maamulka
+            </button>
+            <div style="margin-top: 16px;">
+                <a href="javascript:void(0);" onclick="switchView('store')" style="color: #888; font-size: 0.9rem; text-decoration: none;">
+                    Dib ugu noqo Dukaanka Macaamiisha
+                </a>
+            </div>
+        </div>
+
+        <!-- Authenticated Admin Content -->
+        <div id="adminMainContent" class="admin-wrapper" style="display: none;">
+            <header class="admin-header">
+                <div>
+                    <h1 style="font-size: 1.6rem; color: #333; margin:0;">Qaybta Maamulka (Admin Dashboard)</h1>
+                    <p style="color: #777; margin: 4px 0 0; font-size: 0.9rem;">Maamul dhammaan alaabta, dalabaadka, iyo macaamiisha hal meel.</p>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button onclick="switchView('store')"
+                        style="background: #EAE6DF; color: var(--dark-brown); border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-icons-round">storefront</span>
+                        Eeg Dukaanka (Store)
+                    </button>
+                    <button onclick="inlineLogoutAdmin()"
+                        style="background: #FFEBEE; color: #C62828; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-icons-round">lock</span>
+                        Ka bax (Lock)
+                    </button>
+                </div>
+            </header>
+
+            <main>
+                <div class="admin-nav">
+                    <div class="admin-tab active" onclick="switchAdminTab('dashboard', this)">
+                        <span class="material-icons-round">analytics</span> Warbixin (Dashboard)
+                    </div>
+                    <div class="admin-tab" onclick="switchAdminTab('products', this)">
+                        <span class="material-icons-round">inventory_2</span> Hilibka (Products)
+                    </div>
+                    <div class="admin-tab" onclick="switchAdminTab('orders', this)">
+                        <span class="material-icons-round">receipt_long</span> Dalabaadka (Orders)
+                    </div>
+                    <div class="admin-tab" onclick="switchAdminTab('users', this)">
+                        <span class="material-icons-round">people</span> Macaamiisha (Users)
+                    </div>
+                </div>
+
+                <!-- Dashboard Section -->
+                <div id="adminDashboardSection" class="admin-section active">
+                    <div class="grid-container" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 24px;">
+                        <div class="card-desktop" style="border-left: 5px solid #2E7D32;">
+                            <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Wadarta Lacagta (Revenue)</div>
+                            <div id="statRevenue" style="font-size: 2rem; font-weight: 800; color: #333; margin-top: 8px;">$0.00</div>
+                        </div>
+                        <div class="card-desktop" style="border-left: 5px solid var(--accent-orange);">
+                            <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Dalabaadka (Orders)</div>
+                            <div id="statOrders" style="font-size: 2rem; font-weight: 800; color: #333; margin-top: 8px;">0</div>
+                        </div>
+                        <div class="card-desktop" style="border-left: 5px solid #1565C0;">
+                            <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Hilibka Baxay (Kg Sold)</div>
+                            <div id="statItems" style="font-size: 2rem; font-weight: 800; color: #333; margin-top: 8px;">0 Kg</div>
+                        </div>
+                        <div class="card-desktop" style="border-left: 5px solid #EF6C00;">
+                            <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Weli Waa La Wadaa (Pending)</div>
+                            <div id="statPending" style="font-size: 2rem; font-weight: 800; color: #333; margin-top: 8px;">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Section -->
+                <div id="adminProductsSection" class="admin-section">
+                    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <button class="btn-add" onclick="openProductModal()">
+                            <span class="material-icons-round">add</span> Ku dar Hilib Cusub
+                        </button>
+                        <span style="color: #666; font-size: 0.9rem;">Dhammaan waxyaabaha aad ku darto halkan markiiba waxay ka muuqanayaan Dukaanka Macaamiisha!</span>
+                    </div>
+
+                    <div class="card-desktop">
+                        <h3 style="margin: 0 0 16px 0; font-size: 1.2rem; border-bottom: 1px solid #eee; padding-bottom: 12px; color: #333;">Liiska Cuntooyinka & Hilibka</h3>
+                        <div id="adminProductList" class="grid-container">
+                            <!-- Dynamic products will load here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Section -->
+                <div id="adminOrdersSection" class="admin-section">
+                    <div class="card-desktop" style="margin-bottom: 20px;">
+                        <h3 style="margin: 0 0 8px 0; font-size: 1.2rem; color: #333;">Dalabaadka Macaamiisha</h3>
+                        <p style="color: #666; margin: 0; font-size: 0.9rem;">Halkan waxaad ka bedeli kartaa xaaladda dalab kasta (Wali wadaa, Lasoo saaray, Waa la keenay).</p>
+                    </div>
+                    <div id="adminOrderList" class="grid-container">
+                        <!-- Dynamic orders will load here -->
+                    </div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="adminUsersSection" class="admin-section">
+                    <div class="card-desktop">
+                        <h3 style="margin: 0 0 16px 0; font-size: 1.2rem; border-bottom: 1px solid #eee; padding-bottom: 12px; color: #333;">Macaamiisha Is-diiwaangalisay</h3>
+                        <div id="adminUserList" class="grid-container">
+                            <!-- Dynamic users will load here -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Admin Add/Edit Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 id="modalTitle" style="font-size: 1.4rem; color: #333; margin:0;">Ku dar Cunto</h2>
+                <span class="material-icons-round" style="cursor: pointer; color: #999; font-size: 24px;" onclick="closeProductModal()">close</span>
+            </div>
+
+            <form id="productForm" onsubmit="event.preventDefault(); saveProduct();">
+                <input type="hidden" id="productId">
+                <div class="input-group">
+                    <label>Magaca Hilibka / Cuntada</label>
+                    <input type="text" id="productName" required placeholder="e.g. Hilib Geel Tayo Sare Leh">
+                </div>
+                <div class="input-group">
+                    <label>Qiimaha 1Kg (USD)</label>
+                    <input type="number" id="productPrice" required step="0.01" placeholder="e.g. 15.00">
+                </div>
+                <div class="input-group">
+                    <label>Sawirka Hilibka (File)</label>
+                    <input type="file" id="productImage" accept="image/*" style="padding: 10px; background:#fafafa;">
+                </div>
+                <button type="submit" class="btn-add" style="width: 100%; justify-content: center; margin-top: 10px;">
+                    Keydi Macluumaadka
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- 4. UNIFIED LOGIC & INTERACTIVE SCRIPT     -->
+    <!-- ========================================== -->
+    <script>
+        // --- 4.1 VIEW SWITCHER (HAL MEEL) ---
+        function switchView(viewName) {
+            const storeView = document.getElementById('visitorStoreView');
+            const adminView = document.getElementById('adminDashboardView');
+            const btnStore = document.getElementById('btnSwitchStore');
+            const btnAdmin = document.getElementById('btnSwitchAdmin');
+
+            if (viewName === 'admin') {
+                storeView.classList.remove('active');
+                adminView.classList.add('active');
+                btnStore.classList.remove('active');
+                btnAdmin.classList.add('active');
+                localStorage.setItem('hilib_active_view', 'admin');
+
+                // Update URL query parameter without reloading
+                const url = new URL(window.location);
+                url.searchParams.set('view', 'admin');
+                window.history.replaceState({}, '', url);
+
+                checkAdminAuthAndRender();
+            } else {
+                adminView.classList.remove('active');
+                storeView.classList.add('active');
+                btnAdmin.classList.remove('active');
+                btnStore.classList.add('active');
+                localStorage.setItem('hilib_active_view', 'store');
+
+                const url = new URL(window.location);
+                url.searchParams.set('view', 'store');
+                window.history.replaceState({}, '', url);
+
+                // Refresh store products in case admin made modifications
+                renderHomeProducts();
+                updateCartBadge();
+            }
+        }
+
+        // --- 4.2 ADMIN AUTHENTICATION ---
+        function checkAdminAuthAndRender() {
+            const isLogged = localStorage.getItem('hilib_admin_logged_in') === 'true';
+            const authGate = document.getElementById('adminAuthGate');
+            const mainContent = document.getElementById('adminMainContent');
+
+            if (isLogged) {
+                authGate.style.display = 'none';
+                mainContent.style.display = 'block';
+                renderAdminStats();
+                renderAdminProducts();
+                renderAdminOrders();
+                renderAdminUsers();
+            } else {
+                authGate.style.display = 'block';
+                mainContent.style.display = 'none';
+            }
+        }
+
+        function inlineLoginAdmin() {
+            const user = document.getElementById('inlineAdminUser').value.trim();
+            const pass = document.getElementById('inlineAdminPass').value.trim();
+            const errorEl = document.getElementById('adminLoginError');
+
+            if (user === 'admin' && pass === 'admin123') {
+                localStorage.setItem('hilib_admin_logged_in', 'true');
+                errorEl.style.display = 'none';
+                checkAdminAuthAndRender();
+            } else {
+                errorEl.style.display = 'block';
+            }
+        }
+
+        function inlineLogoutAdmin() {
+            localStorage.removeItem('hilib_admin_logged_in');
+            checkAdminAuthAndRender();
+        }
+
+        function switchAdminTab(tab, element) {
+            document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
+            
+            if (element) {
+                element.classList.add('active');
+            }
+            
+            const target = document.getElementById('admin' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Section');
+            if (target) {
+                target.classList.add('active');
+            }
+        }
+
+        // --- 4.3 SHARED DATA STORAGE ---
+        function getStoredProducts() {
+            let products = JSON.parse(localStorage.getItem('adminProducts'));
+            // Auto migrate any old file:/// paths
+            if (products && products.length > 0) {
+                let modified = false;
+                products.forEach(p => {
+                    if (p.image && p.image.includes('file:///')) {
+                        modified = true;
+                        if (p.image.includes('wagyu_steak')) p.image = 'images/wagyu_steak.png';
+                        else if (p.image.includes('camel_meat')) p.image = 'images/camel_meat.png';
+                        else if (p.image.includes('goat_meat')) p.image = 'images/goat_meat.png';
+                    }
+                });
+                if (modified) {
+                    localStorage.setItem('adminProducts', JSON.stringify(products));
+                }
+            }
+
+            if (!products || products.length === 0 || (products.length > 0 && products[0].name === "Hilib Geel / Camel") || (products.length > 0 && products[0].image && products[0].image.includes('file:///'))) {
+                products = [
+                    { id: 1, name: "Hilib Lo'da oo Daray ah", price: "84.00", image: "images/wagyu_steak.png" },
+                    { id: 2, name: "Hilib Geel Tayo Sare Leh", price: "22.50", image: "images/camel_meat.png" },
+                    { id: 3, name: "Hilib Ari oo Nadiif ah", price: "15.00", image: "images/goat_meat.png" }
+                ];
+                localStorage.setItem('adminProducts', JSON.stringify(products));
+            }
+            return products;
+        }
+
+        function saveStoredProducts(products) {
+            localStorage.setItem('adminProducts', JSON.stringify(products));
+        }
+
+        // --- 4.4 STOREFRONT LOGIC (VISITOR) ---
+        let currentQty = 1;
+        let currentAddBtn = null;
+        let toastTimeout;
+
+        function updateCartBadge() {
+            const cart = JSON.parse(localStorage.getItem('hilib_cart') || '[]');
+            const badge = document.querySelector('.cart-badge');
+            if (badge) {
+                badge.innerText = cart.length;
+                badge.style.display = cart.length > 0 ? 'flex' : 'none';
+            }
+        }
+
+        function renderHomeProducts() {
+            const grid = document.getElementById('mainProductGrid');
+            if (!grid) return;
+
+            const products = getStoredProducts();
+            if (products.length === 0) {
+                grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1; color:var(--text-secondary); width: 100%; padding:20px;">Ma jiraan cuntooyin hadda.</p>';
+                return;
+            }
+
+            grid.innerHTML = '';
+            products.forEach(p => {
+                const isFav = p.name.toLowerCase().includes('ari') ? 'color: #FF3B30;' : '';
+                const favIcon = p.name.toLowerCase().includes('ari') ? 'favorite' : 'favorite_border';
+                grid.innerHTML += `
+                <div class="card product-card">
+                    <div class="product-image-wrapper">
+                        <img src="${p.image}" alt="${p.name}" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&q=80&w=300'">
+                        <button class="fav-btn" style="${isFav}"><span class="material-icons-round">${favIcon}</span></button>
+                    </div>
+                    <div class="product-info">
+                        <h3>${p.name}</h3>
+                        <p class="product-desc">1kg • Daray</p>
+                        <div class="product-bottom">
+                            <span class="product-price">$${Number(p.price).toFixed(2)}</span>
+                            <button class="add-btn"><span class="material-icons-round">add</span></button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+
+            bindStoreAddButtons();
+        }
+
+        function bindStoreAddButtons() {
+            const addBtns = document.querySelectorAll('.add-btn');
+            const qtyModal = document.getElementById('qty-modal');
+            const qtyProductName = document.getElementById('qty-product-name');
+            const qtyValue = document.getElementById('qty-value');
+
+            addBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const productCard = e.target.closest('.product-card');
+                    if (productCard) {
+                        const productName = productCard.querySelector('h3').innerText;
+                        qtyProductName.innerText = productName;
+                        btn.dataset.name = productName;
+                        btn.dataset.img = productCard.querySelector('img').getAttribute('src');
+                        btn.dataset.price = productCard.querySelector('.product-price').innerText;
+                    }
+
+                    currentQty = 1;
+                    qtyValue.innerText = currentQty;
+                    currentAddBtn = btn;
+                    qtyModal.classList.add('show-modal');
+                });
+            });
+        }
+
+        // --- 4.5 ADMIN CRUD OPERATIONS ---
+        let currentUploadedImageBase64 = null;
+
+        document.getElementById('productImage').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (evt) { currentUploadedImageBase64 = evt.target.result; };
+                reader.readAsDataURL(file);
+            } else {
+                currentUploadedImageBase64 = null;
+            }
+        });
+
+        function renderAdminProducts() {
+            const list = document.getElementById('adminProductList');
+            if (!list) return;
+
+            const products = getStoredProducts();
+            list.innerHTML = '';
+            if (products.length === 0) {
+                list.innerHTML = '<p style="color: #666; text-align: center; grid-column: 1/-1;">Wax hilib ah lagama helin.</p>';
+                return;
+            }
+
+            products.forEach(p => {
+                list.innerHTML += `
+                    <div style="border: 1px solid #eee; border-radius: 12px; padding: 16px; background: #fafafa;">
+                        <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 16px;">
+                            <img src="${p.image}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&q=80&w=200'" style="width: 60px; height: 60px; border-radius: 10px; object-fit: cover;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 1.05rem; color: #333;">${p.name}</div>
+                                <div style="color: var(--accent-orange); font-weight: 700; font-size: 1rem;">$${Number(p.price).toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-sm btn-edit" style="flex:1;" onclick="openProductModal(${p.id})">Edit</button>
+                            <button class="btn-sm btn-delete" style="flex:1;" onclick="deleteProduct(${p.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openProductModal(id = null) {
+            document.getElementById('productImage').value = '';
+            currentUploadedImageBase64 = null;
+            document.getElementById('productModal').classList.add('active');
+            
+            const products = getStoredProducts();
+            if (id) {
+                document.getElementById('modalTitle').innerText = 'Bedel Macluumaadka Hilibka';
+                const p = products.find(x => x.id === id);
+                if (p) {
+                    document.getElementById('productId').value = p.id;
+                    document.getElementById('productName').value = p.name;
+                    document.getElementById('productPrice').value = p.price;
+                    currentUploadedImageBase64 = p.image;
+                }
+            } else {
+                document.getElementById('modalTitle').innerText = 'Ku dar Hilib Cusub';
+                document.getElementById('productId').value = '';
+                document.getElementById('productName').value = '';
+                document.getElementById('productPrice').value = '';
+            }
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('active');
+        }
+
+        function saveProduct() {
+            const id = document.getElementById('productId').value;
+            const name = document.getElementById('productName').value.trim();
+            const price = document.getElementById('productPrice').value.trim();
+            const image = currentUploadedImageBase64 || 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&q=80&w=300';
+
+            if (!name || !price) {
+                alert("Fadlan geli magaca iyo qiimaha!");
+                return;
+            }
+
+            let products = getStoredProducts();
+            if (id) {
+                const index = products.findIndex(x => x.id === parseInt(id));
+                if (index > -1) {
+                    products[index] = { id: parseInt(id), name, price, image };
+                }
+            } else {
+                const newId = products.length ? Math.max(...products.map(x => x.id)) + 1 : 1;
+                products.push({ id: newId, name, price, image });
+            }
+
+            saveStoredProducts(products);
+            renderAdminProducts();
+            renderHomeProducts();
+            closeProductModal();
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Ma hubtaa inaad tirto cuntadan?')) {
+                let products = getStoredProducts();
+                products = products.filter(x => x.id !== id);
+                saveStoredProducts(products);
+                renderAdminProducts();
+                renderHomeProducts();
+            }
+        }
+
+        function renderAdminOrders() {
+            const list = document.getElementById('adminOrderList');
+            if (!list) return;
+            const orders = JSON.parse(localStorage.getItem('hilib_orders') || '[]');
+            list.innerHTML = '';
+            if (orders.length === 0) {
+                list.innerHTML = '<p style="color: #666; text-align: center; grid-column: 1/-1;">Wax dalab ah (orders) lagama helin.</p>';
+                return;
+            }
+
+            for (let i = orders.length - 1; i >= 0; i--) {
+                const order = orders[i];
+                let badgeClass = 'badge'; let badgeText = ''; let borderColor = '';
+                if (order.status === 'pending') { badgeClass += ' pending'; badgeText = 'Weli waa la wadaa'; borderColor = 'var(--accent-orange)'; }
+                else if (order.status === 'delivery') { badgeClass += ' out-for-delivery'; badgeText = 'Delivery soo saaray'; borderColor = '#1565C0'; }
+                else if (order.status === 'delivered') { badgeText = 'Waa la keenay'; borderColor = '#2E7D32'; }
+                else if (order.status === 'cancelled') { badgeClass += ' cancelled'; badgeText = 'La kansalay'; borderColor = '#C62828'; }
+
+                let itemsHtml = '';
+                (order.items || []).forEach(item => {
+                    const priceNum = parseFloat(String(item.price).replace('$', '')) || 0;
+                    itemsHtml += `<div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px; color:#444;">
+                                      <span>${item.qty}Kg x ${item.name}</span>
+                                      <span style="font-weight: 700;">$${(priceNum * item.qty).toFixed(2)}</span>
+                                  </div>`;
+                });
+
+                list.innerHTML += `
+                <div class="order-card" style="border-left-color: ${borderColor};">
+                    <div class="order-header">
+                        <div>
+                            <span style="font-weight: 700; color: #333; font-size:1.1rem;">${order.id}</span>
+                            <div style="font-size: 0.85rem; color: #888; margin-top: 4px;">${order.date}</div>
+                        </div>
+                        <span class="${badgeClass}">${badgeText}</span>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color:#444;">
+                            <span class="material-icons-round" style="font-size: 20px; color: #888;">person</span>
+                            <span style="font-weight: 600;">${order.customer}</span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; color:#444;">
+                            <span class="material-icons-round" style="font-size: 20px; color: #888;">place</span>
+                            <span style="font-size: 0.9rem;">${order.address}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; color:#444;">
+                            <span class="material-icons-round" style="font-size: 20px; color: #888;">phone</span>
+                            <span style="font-size: 0.9rem; color: #1565C0; font-weight: 700;">${order.phone}</span>
+                        </div>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+                        <div style="font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; color:#333;">Dalabka:</div>
+                        ${itemsHtml}
+                        <div style="display: flex; justify-content: space-between; font-size: 1rem; border-top: 2px dashed #ddd; padding-top: 12px; margin-top: 12px;">
+                            <span style="font-weight: 700; color:#333;">Lacagta guud:</span>
+                            <span style="font-weight: 800; color: var(--accent-orange);">$${parseFloat(order.total || 0).toFixed(2)}</span>
+                        </div>
+                    </div>
+                    ${order.status === 'cancelled' ? '' : `
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn-sm" style="flex:1; background: #FFF3E0; color: #EF6C00;" onclick="updateOrderStatus(${i}, 'pending')">Wali wadaa</button>
+                        <button class="btn-sm" style="flex:1; background: #E3F2FD; color: #1565C0;" onclick="updateOrderStatus(${i}, 'delivery')">Lasoo saaray</button>
+                        <button class="btn-sm" style="flex:1; background: #E8F5E9; color: #2E7D32;" onclick="updateOrderStatus(${i}, 'delivered')">Waa la keenay</button>
+                    </div>`}
+                </div>`;
+            }
+        }
+
+        function updateOrderStatus(index, status) {
+            const orders = JSON.parse(localStorage.getItem('hilib_orders') || '[]');
+            if (orders[index]) {
+                orders[index].status = status;
+                localStorage.setItem('hilib_orders', JSON.stringify(orders));
+                renderAdminOrders();
+                renderAdminStats();
+            }
+        }
+
+        function renderAdminUsers() {
+            const list = document.getElementById('adminUserList');
+            if (!list) return;
+            const users = JSON.parse(localStorage.getItem('hilib_users') || '[]');
+            list.innerHTML = '';
+            if (users.length === 0) {
+                list.innerHTML = '<p style="color: #666; text-align: center; grid-column: 1/-1;">Wax dad ah oo is-diiwaangaliyey ma jiraan.</p>';
+                return;
+            }
+            users.forEach(u => {
+                list.innerHTML += `
+                    <div style="padding: 16px; border: 1px solid #eee; background: #fafafa; border-radius: 12px; display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 50px; height: 50px; background: rgba(255,122,0,0.1); color: var(--accent-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <span class="material-icons-round" style="font-size:24px;">person</span>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 1.1rem; color: #333;">${u.name}</div>
+                            <div style="font-size: 0.9rem; color: #666; margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">
+                                <span style="display:flex; align-items:center; gap:6px;"><span class="material-icons-round" style="font-size: 16px;">phone</span> ${u.phone}</span>
+                                <span style="display:flex; align-items:flex-start; gap:6px;"><span class="material-icons-round" style="font-size: 16px;">place</span> ${u.address || 'Cinwaan lama gelin'}</span>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #999; text-align: right; font-weight:600;">
+                            Diiwaanka<br><span style="color:#555;">${u.dateJoined || 'N/A'}</span>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function renderAdminStats() {
+            const orders = JSON.parse(localStorage.getItem('hilib_orders') || '[]');
+            let totalRevenue = 0;
+            let totalOrders = 0;
+            let totalKg = 0;
+            let totalPending = 0;
+
+            orders.forEach(order => {
+                if (order.status !== 'cancelled') {
+                    totalRevenue += parseFloat(order.total || 0);
+                    totalOrders++;
+                    if (order.status === 'pending') totalPending++;
+
+                    (order.items || []).forEach(item => {
+                        totalKg += parseInt(item.qty || 1);
+                    });
+                }
+            });
+
+            const sr = document.getElementById('statRevenue');
+            const so = document.getElementById('statOrders');
+            const si = document.getElementById('statItems');
+            const sp = document.getElementById('statPending');
+
+            if (sr) sr.innerText = '$' + totalRevenue.toFixed(2);
+            if (so) so.innerText = totalOrders;
+            if (si) si.innerText = totalKg + ' Kg';
+            if (sp) sp.innerText = totalPending;
+        }
+
+        // --- 4.6 INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Restore current user greeting in Store
+            const currentUser = JSON.parse(localStorage.getItem('hilib_currentUser'));
+            const homeUserName = document.getElementById('home-user-name');
+            if (homeUserName) {
+                homeUserName.innerText = currentUser ? currentUser.name : 'Macaamiil';
+            }
+
+            // Search Filter
+            const homeSearchInput = document.getElementById('homeSearchInput');
+            if (homeSearchInput) {
+                homeSearchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase();
+                    const cards = document.querySelectorAll('.product-grid .product-card');
+
+                    document.querySelectorAll('.category-item').forEach(c => c.classList.remove('active'));
+                    const allCat = document.querySelector('.category-item[data-filter="all"]');
+                    if (allCat) allCat.classList.add('active');
+
+                    cards.forEach(card => {
+                        const title = card.querySelector('h3').innerText.toLowerCase();
+                        card.style.display = title.includes(query) ? '' : 'none';
+                    });
+                });
+            }
+
+            // Categories Filter
+            const categoryItems = document.querySelectorAll('.category-item');
+            if (categoryItems.length > 0) {
+                categoryItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        categoryItems.forEach(c => c.classList.remove('active'));
+                        item.classList.add('active');
+
+                        if (homeSearchInput) homeSearchInput.value = '';
+
+                        const filter = item.getAttribute('data-filter') || 'all';
+                        const cards = document.querySelectorAll('.product-grid .product-card');
+
+                        cards.forEach(card => {
+                            if (filter === 'all') {
+                                card.style.display = '';
+                                return;
+                            }
+                            const title = card.querySelector('h3').innerText.toLowerCase();
+                            const filterWords = filter.split('|');
+                            const isMatch = filterWords.some(w => title.includes(w));
+                            card.style.display = isMatch ? '' : 'none';
+                        });
+                    });
+                });
+            }
+
+            // Modal Quantity Controls
+            const qtyModal = document.getElementById('qty-modal');
+            const qtyMinus = document.getElementById('qty-minus');
+            const qtyPlus = document.getElementById('qty-plus');
+            const qtyValue = document.getElementById('qty-value');
+            const cancelQtyBtn = document.getElementById('cancel-qty-btn');
+            const confirmQtyBtn = document.getElementById('confirm-qty-btn');
+            const toast = document.getElementById('toast');
+
+            qtyMinus.addEventListener('click', () => {
+                if (currentQty > 1) {
+                    currentQty--;
+                    qtyValue.innerText = currentQty;
+                }
+            });
+
+            qtyPlus.addEventListener('click', () => {
+                currentQty++;
+                qtyValue.innerText = currentQty;
+            });
+
+            cancelQtyBtn.addEventListener('click', () => {
+                qtyModal.classList.remove('show-modal');
+            });
+
+            confirmQtyBtn.addEventListener('click', () => {
+                qtyModal.classList.remove('show-modal');
+
+                if (currentAddBtn) {
+                    const icon = currentAddBtn.querySelector('.material-icons-round');
+                    const originalIcon = icon.innerText;
+                    icon.innerText = 'check';
+                    currentAddBtn.style.backgroundColor = '#00D366';
+
+                    setTimeout(() => {
+                        icon.innerText = originalIcon;
+                        currentAddBtn.style.backgroundColor = '';
+                    }, 2000);
+
+                    const cart = JSON.parse(localStorage.getItem('hilib_cart') || '[]');
+                    cart.push({
+                        id: Date.now(),
+                        name: currentAddBtn.dataset.name,
+                        img: currentAddBtn.dataset.img,
+                        price: currentAddBtn.dataset.price,
+                        qty: currentQty
+                    });
+                    localStorage.setItem('hilib_cart', JSON.stringify(cart));
+                    updateCartBadge();
+                }
+
+                toast.innerText = currentQty + ' Kg oo hilib ah waa lagu daray dambiisha! 🛒';
+                toast.classList.add('show');
+
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            });
+
+            // Initial render
+            renderHomeProducts();
+            updateCartBadge();
+
+            // Check URL parameters or saved view
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewParam = urlParams.get('view');
+            const savedView = localStorage.getItem('hilib_active_view');
+
+            if (viewParam === 'admin' || (!viewParam && savedView === 'admin')) {
+                switchView('admin');
+            } else {
+                switchView('store');
+            }
+        });
+    </script>
+</body>
+
+</html>

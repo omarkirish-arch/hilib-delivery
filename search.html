@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search - Hilib Delivery</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Material Icons for Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header home-header-clean">
+            <div style="width: 100%; display: flex; align-items: center; gap: 12px;">
+                <button class="icon-button" onclick="history.back()"><span class="material-icons-round">arrow_back</span></button>
+                <div class="search-bar" style="margin-top: 0; flex: 1; border-radius: 20px; box-shadow: none; border: 1px solid rgba(0,0,0,0.05); background: white;">
+                    <span class="material-icons-round">search</span>
+                    <input type="text" id="searchInput" placeholder="Raadi hilib..." autofocus>
+                    <button class="icon-button" id="clearSearch" style="display: none;"><span class="material-icons-round" style="font-size: 18px;">close</span></button>
+                </div>
+            </div>
+        </header>
+
+        <main class="content home-content-clean" style="padding-top: 20px;">
+            <p id="searchStatus" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px; font-weight: 500;">Ku qor magaca hilibka koobiga sare.</p>
+            
+            <!-- Products Grid -->
+            <div class="product-grid" id="searchResults">
+                <!-- Search results will populate here -->
+            </div>
+
+            <br><br><br>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <span class="material-icons-round">home</span>
+                <span>HOME</span>
+            </a>
+            <a href="search.html" class="nav-item active">
+                <span class="material-icons-round">search</span>
+                <span>SEARCH</span>
+            </a>
+            <a href="orders.html" class="nav-item">
+                <span class="material-icons-round">receipt_long</span>
+                <span>ORDERS</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="material-icons-round">person</span>
+                <span>PROFILE</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Quantity Modal -->
+    <div id="qty-modal" class="checkout-modal">
+        <div class="modal-content card" style="text-align: center;">
+            <h2 style="font-size: 1.2rem; color: var(--dark-brown); margin-bottom: 8px;">Imisa kiilo ayaad rabtaa?</h2>
+            <p id="qty-product-name" style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 20px;"></p>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 24px;">
+                <button id="qty-minus" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--bg-color); font-size: 24px; cursor: pointer; color: var(--dark-brown); box-shadow: 0 2px 5px rgba(0,0,0,0.05);">-</button>
+                <div style="display: flex; align-items: baseline; gap: 4px;">
+                    <span id="qty-value" style="font-size: 1.8rem; font-weight: 700; color: var(--text-primary);">1</span>
+                    <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 600;">Kg</span>
+                </div>
+                <button id="qty-plus" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--accent-orange-light); color: var(--accent-orange); font-size: 24px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">+</button>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <button id="cancel-qty-btn" class="modal-btn cancel-btn">Ka noqo</button>
+                <button id="confirm-qty-btn" class="modal-btn confirm-btn" style="flex: 1.5;">Kudar Dambiisha</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            const clearSearch = document.getElementById('clearSearch');
+            const searchResults = document.getElementById('searchResults');
+            const searchStatus = document.getElementById('searchStatus');
+            const toast = document.getElementById('toast');
+            let toastTimeout;
+
+            // Load products from admin
+            let allProducts = JSON.parse(localStorage.getItem('adminProducts'));
+            
+            // Auto migrate any old file:/// paths
+            if (allProducts && allProducts.length > 0) {
+                allProducts.forEach(p => {
+                    if (p.image && p.image.includes('file:///')) {
+                        if (p.image.includes('wagyu_steak')) p.image = 'images/wagyu_steak.png';
+                        else if (p.image.includes('camel_meat')) p.image = 'images/camel_meat.png';
+                        else if (p.image.includes('goat_meat')) p.image = 'images/goat_meat.png';
+                    }
+                });
+            }
+
+            if (!allProducts || allProducts.length === 0 || (allProducts.length > 0 && allProducts[0].name === "Hilib Geel / Camel") || (allProducts.length > 0 && allProducts[0].image && allProducts[0].image.includes('file:///'))) {
+                allProducts = [
+                    { id: 1, name: "Hilib Lo'da oo Daray ah", price: "84.00", image: "images/wagyu_steak.png" },
+                    { id: 2, name: "Hilib Geel Tayo Sare Leh", price: "22.50", image: "images/camel_meat.png" },
+                    { id: 3, name: "Hilib Ari oo Nadiif ah", price: "15.00", image: "images/goat_meat.png" }
+                ];
+                localStorage.setItem('adminProducts', JSON.stringify(allProducts));
+            }
+
+            // Render Function
+            function renderProducts(query) {
+                searchResults.innerHTML = '';
+                
+                const filtered = allProducts.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
+                
+                if (query.trim() === '') {
+                    searchStatus.innerText = 'Ku qor magaca hilibka koobiga sare.';
+                } else if (filtered.length === 0) {
+                    searchStatus.innerText = 'Wax natiijo ah lama helin.';
+                } else {
+                    searchStatus.innerText = `Waxaa la helay ${filtered.length} nooc.`;
+                    filtered.forEach(p => {
+                        searchResults.innerHTML += `
+                            <div class="card product-card" style="display: flex; flex-direction: row; gap: 16px; align-items: center; padding: 12px;">
+                                <img src="${p.image}" alt="${p.name}" style="width: 80px; height: 80px; border-radius: 12px; object-fit: cover;">
+                                <div style="flex: 1;">
+                                    <h3 style="font-size: 1rem; margin-bottom: 4px;">${p.name}</h3>
+                                    <p class="product-price" style="color: var(--accent-orange); font-weight: 700;">$${Number(p.price).toFixed(2)}</p>
+                                </div>
+                                <button class="add-btn search-add-btn" data-name="${p.name}" data-img="${p.image}" data-price="$${Number(p.price).toFixed(2)}" style="width: 40px; height: 40px; border-radius: 12px; background: var(--bg-color); color: var(--dark-brown); border: none; align-items: center; justify-content: center; display: flex; box-shadow: var(--shadow-soft);">
+                                    <span class="material-icons-round">add</span>
+                                </button>
+                            </div>
+                        `;
+                    });
+                    
+                    // Re-attach listeners to new buttons
+                    attachAddListeners();
+                }
+            }
+
+            // Input Event
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value;
+                if(query.length > 0) {
+                    clearSearch.style.display = 'block';
+                } else {
+                    clearSearch.style.display = 'none';
+                }
+                renderProducts(query);
+            });
+
+            // Clear Event
+            clearSearch.addEventListener('click', () => {
+                searchInput.value = '';
+                clearSearch.style.display = 'none';
+                renderProducts('');
+                searchInput.focus();
+            });
+
+            // Initial render
+            renderProducts('');
+
+            // --- Modal Logic (Copied from home.html) ---
+            const qtyModal = document.getElementById('qty-modal');
+            const qtyMinus = document.getElementById('qty-minus');
+            const qtyPlus = document.getElementById('qty-plus');
+            const qtyValue = document.getElementById('qty-value');
+            const cancelQtyBtn = document.getElementById('cancel-qty-btn');
+            const confirmQtyBtn = document.getElementById('confirm-qty-btn');
+            const qtyProductName = document.getElementById('qty-product-name');
+            
+            let currentQty = 1;
+            let currentAddBtn = null;
+
+            qtyMinus.addEventListener('click', () => {
+                if(currentQty > 1) {
+                    currentQty--;
+                    qtyValue.innerText = currentQty;
+                }
+            });
+
+            qtyPlus.addEventListener('click', () => {
+                currentQty++;
+                qtyValue.innerText = currentQty;
+            });
+
+            cancelQtyBtn.addEventListener('click', () => {
+                qtyModal.classList.remove('show-modal');
+            });
+
+            confirmQtyBtn.addEventListener('click', () => {
+                qtyModal.classList.remove('show-modal');
+                
+                if (currentAddBtn) {
+                    const icon = currentAddBtn.querySelector('.material-icons-round');
+                    const originalIcon = icon.innerText;
+                    icon.innerText = 'check';
+                    currentAddBtn.style.backgroundColor = '#00D366';
+                    currentAddBtn.style.color = '#fff';
+                    
+                    setTimeout(() => {
+                        icon.innerText = originalIcon;
+                        currentAddBtn.style.backgroundColor = 'var(--bg-color)';
+                        currentAddBtn.style.color = 'var(--dark-brown)';
+                    }, 2000);
+
+                    const cart = JSON.parse(localStorage.getItem('hilib_cart') || '[]');
+                    cart.push({
+                        id: Date.now(),
+                        name: currentAddBtn.dataset.name,
+                        img: currentAddBtn.dataset.img,
+                        price: currentAddBtn.dataset.price,
+                        qty: currentQty
+                    });
+                    localStorage.setItem('hilib_cart', JSON.stringify(cart));
+                }
+
+                toast.innerText = currentQty + ' Kg oo hilib ah waa lagu daray dambiisha! 🛒';
+                toast.classList.add('show');
+                
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            });
+
+            function attachAddListeners() {
+                document.querySelectorAll('.search-add-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        qtyProductName.innerText = btn.dataset.name;
+                        currentQty = 1;
+                        qtyValue.innerText = currentQty;
+                        currentAddBtn = btn;
+                        qtyModal.classList.add('show-modal');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Hilib Delivery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <h1 style="margin: 0 auto; font-size: 1.3rem; color: var(--dark-brown);">Profile-kaaga</h1>
+        </header>
+
+        <main class="content" style="padding-top: 20px; padding-bottom: 120px;">
+            <!-- User Info -->
+            <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px;">
+                <div style="width: 80px; height: 80px; background: rgba(255,122,0,0.1); color: var(--accent-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: var(--shadow-soft);">
+                    <span class="material-icons-round" style="font-size: 44px;">person</span>
+                </div>
+                <h2 id="profile-name" style="font-size: 1.3rem; color: var(--dark-brown); font-weight: 700;">Omar K.</h2>
+                <p id="profile-phone" style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px;">+252 61XXXXXXX</p>
+                <a href="login.html" id="profile-login-btn" style="display: none; margin-top: 12px; padding: 8px 16px; background: var(--accent-orange); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">Gal Koontada</a>
+            </div>
+
+            <!-- Menu Options -->
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <a href="details.html" style="text-decoration: none;">
+                    <div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; cursor: pointer; transition: transform 0.2s;" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <span class="material-icons-round" style="color: var(--text-secondary);">person_outline</span>
+                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Macluumaadkaaga (Details)</span>
+                        </div>
+                        <span class="material-icons-round" style="color: var(--text-inactive);">chevron_right</span>
+                    </div>
+                </a>
+
+                <a href="address.html" style="text-decoration: none;">
+                    <div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; cursor: pointer; transition: transform 0.2s;" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <span class="material-icons-round" style="color: var(--text-secondary);">place</span>
+                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Cinwaanadaada (Addresses)</span>
+                        </div>
+                        <span class="material-icons-round" style="color: var(--text-inactive);">chevron_right</span>
+                    </div>
+                </a>
+
+                <a href="payment.html" style="text-decoration: none;">
+                    <div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; cursor: pointer; transition: transform 0.2s;" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <span class="material-icons-round" style="color: var(--text-secondary);">payment</span>
+                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Habka Bixinta (Payment)</span>
+                        </div>
+                        <span class="material-icons-round" style="color: var(--text-inactive);">chevron_right</span>
+                    </div>
+                </a>
+
+                <a href="history.html" style="text-decoration: none;">
+                    <div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; cursor: pointer; transition: transform 0.2s;" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <span class="material-icons-round" style="color: var(--text-secondary);">history</span>
+                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Taariikhda Dalabaadka (History)</span>
+                        </div>
+                        <span class="material-icons-round" style="color: var(--text-inactive);">chevron_right</span>
+                    </div>
+                </a>
+
+                <a href="index.html?view=admin" style="text-decoration: none;">
+                    <div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; cursor: pointer; border-left: 4px solid var(--accent-orange); transition: transform 0.2s;" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <span class="material-icons-round" style="color: var(--accent-orange);">admin_panel_settings</span>
+                            <span style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem;">Qaybta Maamulka (Admin Portal)</span>
+                        </div>
+                        <span class="material-icons-round" style="color: var(--accent-orange);">chevron_right</span>
+                    </div>
+                </a>
+
+            </div>
+
+            <!-- Logout Button -->
+            <button onclick="localStorage.removeItem('hilib_currentUser'); alert('Waa lagaa saaray (Logged out successfully)'); window.location.href='index.html';" style="width: 100%; margin-top: 32px; padding: 16px; border-radius: 12px; border: 1px solid rgba(255, 59, 48, 0.3); background: transparent; color: #FF3B30; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255, 59, 48, 0.05)'" onmouseout="this.style.background='transparent'">
+                Ka bax (Logout)
+            </button>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <span class="material-icons-round">home</span>
+                <span>HOME</span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <span class="material-icons-round">search</span>
+                <span>SEARCH</span>
+            </a>
+            <a href="orders.html" class="nav-item">
+                <span class="material-icons-round">receipt_long</span>
+                <span>ORDERS</span>
+            </a>
+            <a href="profile.html" class="nav-item active">
+                <span class="material-icons-round">person</span>
+                <span>PROFILE</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = JSON.parse(localStorage.getItem('hilib_currentUser'));
+            if(currentUser) {
+                document.getElementById('profile-name').innerText = currentUser.name;
+                document.getElementById('profile-phone').innerText = currentUser.phone;
+            } else {
+                document.getElementById('profile-name').innerText = 'Macaamiil';
+                document.getElementById('profile-phone').innerText = 'Fadlan isdiiwaangali';
+                document.getElementById('profile-login-btn').style.display = 'inline-block';
+                const logoutBtn = document.querySelector('button[onclick*="removeItem"]');
+                if (logoutBtn) logoutBtn.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

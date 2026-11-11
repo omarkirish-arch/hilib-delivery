@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dambiisha - Hilib Delivery</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Material Icons for Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <a href="index.html" class="icon-button" style="text-decoration: none;"><span class="material-icons-round">arrow_back</span></a>
+            <h1>Dambiisha (Cart)</h1>
+            <button class="icon-button"><span class="material-icons-round">more_vert</span></button>
+        </header>
+
+        <main class="content" style="padding-top: 10px;">
+            <!-- Cart Items -->
+            <div class="cart-items" style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="text-align: center; color: var(--text-secondary); padding: 40px 10px;">Dambiishaadu way maran tahay hadda.</div>
+            </div>
+
+            <!-- Total Card -->
+            <div class="card total-card" style="margin-top: 32px;">
+                <div class="total-content">
+                    <span class="total-label">Wadarta Guud</span>
+                    <h2 class="total-amount">$0.00</h2>
+                    <button id="checkout-btn" style="width: 100%; background: var(--white); color: var(--dark-brown); border: none; padding: 16px; border-radius: 14px; font-weight: 700; font-size: 1.05rem; cursor: pointer; transition: transform 0.1s;">
+                        Bixi Lacagta (Checkout)
+                    </button>
+                </div>
+                <span class="material-icons-round bg-icon">shopping_bag</span>
+            </div>
+            <br>
+        </main>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="checkout-modal">
+        <div class="modal-content card">
+            <h2 style="font-size: 1.2rem; color: var(--dark-brown); margin-bottom: 20px;">Dhamaystir Dalabkaaga</h2>
+            
+            <div class="input-group">
+                <label for="phone-input">Numberka Lacagta (EVC / Zaad)</label>
+                <div class="input-wrapper">
+                    <span class="material-icons-round">phone_iphone</span>
+                    <input type="tel" id="phone-input" placeholder="Tusaale: 61XXXXXXX">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="address-input">Cinwaanka (Address)</label>
+                <div class="input-wrapper">
+                    <span class="material-icons-round">place</span>
+                    <input type="text" id="address-input" placeholder="Tusaale: Degmada Hodan...">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button id="cancel-modal-btn" class="modal-btn cancel-btn">Ka noqo</button>
+                <button id="confirm-order-btn" class="modal-btn confirm-btn">Xaqiiji</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const checkoutModal = document.getElementById('checkout-modal');
+            const cancelBtn = document.getElementById('cancel-modal-btn');
+            const confirmBtn = document.getElementById('confirm-order-btn');
+            const cartItemsContainer = document.querySelector('.cart-items');
+            const totalAmountEl = document.querySelector('.total-amount');
+            
+            let cart = JSON.parse(localStorage.getItem('hilib_cart') || '[]');
+
+            function saveCart() {
+                localStorage.setItem('hilib_cart', JSON.stringify(cart));
+            }
+
+            function renderCart() {
+                cartItemsContainer.innerHTML = '';
+                let total = 0;
+
+                if(cart.length === 0) {
+                    cartItemsContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px 10px;">Dambiishaadu way maran tahay hadda.</div>';
+                    if (totalAmountEl) totalAmountEl.innerText = '$0.00';
+                    return;
+                }
+
+                cart.forEach((item, index) => {
+                    const itemPrice = parseFloat(item.price.replace('$', ''));
+                    total += (itemPrice * item.qty);
+
+                    cartItemsContainer.innerHTML += `
+                    <div class="card order-item-card" style="display: flex; align-items: center; gap: 16px; padding: 12px;">
+                        <img src="${item.img}" alt="Product" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
+                        <div style="flex: 1;">
+                            <h3 style="font-size: 0.95rem; color: var(--text-primary);">${item.name}</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">${item.price}</p>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                            <span class="material-icons-round delete-btn" style="font-size: 22px; color: #FF3B30; opacity: 0.8; cursor: pointer; transition: 0.2s;" title="Tirtir qaybtan" onclick="removeItem(${index})">delete_outline</span>
+                            <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-color); border-radius: 20px; padding: 4px 10px;">
+                                <span class="material-icons-round qty-btn" style="font-size: 18px; color: var(--text-secondary); cursor: pointer;" onclick="updateQty(${index}, -1)">remove</span>
+                                <span style="font-weight: 600; font-size: 0.9rem; min-width: 30px; text-align: center;">${item.qty} Kg</span>
+                                <span class="material-icons-round qty-btn" style="font-size: 18px; color: var(--accent-orange); cursor: pointer;" onclick="updateQty(${index}, 1)">add</span>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+
+                if(totalAmountEl) totalAmountEl.innerText = '$' + total.toFixed(2);
+            }
+
+            window.updateQty = function(index, delta) {
+                if(cart[index].qty + delta > 0) {
+                    cart[index].qty += delta;
+                    saveCart();
+                    renderCart();
+                }
+            };
+
+            window.removeItem = function(index) {
+                cart.splice(index, 1);
+                saveCart();
+                renderCart();
+            };
+
+            renderCart();
+
+            if(checkoutBtn && checkoutModal) {
+                checkoutBtn.addEventListener('click', () => {
+                    if(cart.length === 0) {
+                        alert("Dambiishaadu way maran tahay fadlan hilib kusoo dar dambiisha!");
+                        return;
+                    }
+                    
+                    const currentUser = JSON.parse(localStorage.getItem('hilib_currentUser'));
+                    if(!currentUser) {
+                        alert("Fadlan marka hore is diiwaangali ama gal koontadaada si aad u dalbato.");
+                        window.location.href = "login.html?redirect=cart.html";
+                        return;
+                    }
+
+                    // Auto fill user details if available
+                    const users = JSON.parse(localStorage.getItem('hilib_users') || '[]');
+                    const fullUser = users.find(u => u.phone === currentUser.phone);
+                    if(fullUser) {
+                        document.getElementById('phone-input').value = fullUser.phone || '';
+                        document.getElementById('address-input').value = fullUser.address || '';
+                    }
+
+                    checkoutModal.classList.add('show-modal');
+                });
+            }
+
+            if(cancelBtn) {
+                cancelBtn.addEventListener('click', () => {
+                    checkoutModal.classList.remove('show-modal');
+                });
+            }
+
+            if(confirmBtn) {
+                confirmBtn.addEventListener('click', () => {
+                    if(cart.length === 0) return;
+                    
+                    const phoneObj = document.getElementById('phone-input').value.trim();
+                    const addrObj = document.getElementById('address-input').value.trim();
+                    
+                    if(!phoneObj || !addrObj) {
+                        alert("Fadlan geli Lambarkaaga iyo Cinwaankaaga (Address-ka) inta aadan xaqiijin.");
+                        return;
+                    }
+                    
+                    confirmBtn.innerText = 'Waa la dirayaa...';
+                    confirmBtn.style.opacity = '0.8';
+                    
+                    const orders = JSON.parse(localStorage.getItem('hilib_orders') || '[]');
+                    let totalVal = 0;
+                    cart.forEach(item => { totalVal += parseFloat(item.price.replace('$', '')) * item.qty; });
+                    
+                    const currentUser = JSON.parse(localStorage.getItem('hilib_currentUser'));
+                    const customerName = currentUser ? currentUser.name : 'Macaamiil';
+
+                    const newOrder = {
+                        id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
+                        date: new Date().toLocaleString(),
+                        customer: customerName,
+                        phone: phoneObj,
+                        address: addrObj,
+                        items: cart,
+                        total: totalVal,
+                        status: 'pending' // 'pending', 'delivery', 'delivered'
+                    };
+                    
+                    orders.push(newOrder);
+                    localStorage.setItem('hilib_orders', JSON.stringify(orders));
+                    
+                    setTimeout(() => {
+                        // Clear the cart when order is completed
+                        localStorage.removeItem('hilib_cart');
+                        window.location.href = 'orders.html';
+                    }, 1500);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

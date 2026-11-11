@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Hilib Delivery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f0f2f5;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .admin-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .admin-tab {
+            padding: 14px 24px;
+            border-radius: 12px;
+            background: white;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s;
+        }
+
+        .admin-tab.active {
+            background: var(--accent-orange);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 122, 0, 0.3);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card-desktop {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        }
+
+        .order-card {
+            border-left: 5px solid var(--accent-orange);
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 12px;
+        }
+
+        .badge {
+            background: #E8F5E9;
+            color: #2E7D32;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge.pending {
+            background: #FFF3E0;
+            color: #EF6C00;
+        }
+
+        .badge.out-for-delivery {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .badge.cancelled {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .product-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-edit {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .btn-delete {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .btn-add {
+            background: var(--accent-orange);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(255, 122, 0, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.95rem;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-wrapper">
+        <header class="admin-header">
+            <h1 style="font-size: 1.6rem; color: #333; margin:0;">Admin Dashboard</h1>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a href="index.html"
+                    style="background: var(--accent-orange); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-icons-round">storefront</span>
+                    Dukaanka (Store)
+                </a>
+                <button onclick="logoutAdmin()"
+                    style="background: #FFEBEE; color: #C62828; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-icons-round">logout</span>
+                    Ka bax (Logout)
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <div class="admin-nav">
+                <div class="admin-tab active" onclick="switchTab('dashboard')">Warbixin (Dashboard)</div>
+                <div class="admin-tab" onclick="switchTab('products')">Hilibka (Products)</div>
+                <div class="admin-tab" onclick="switchTab('orders')">Dalabaadka (Orders)</div>
+                <div class="admin-tab" onclick="switchTab('users')">Macaamiisha (Users)</div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboardSection" class="section active">
+                <div class="grid-container"
+                    style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
+                    <div class="card-desktop" style="border-left: 5px solid #2E7D32;">
+                        <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Wadarta Lacagta (Revenue)</div>
+                        <div id="statRevenue" style="font-size: 2rem; font-weight: 800; color: #333; margin-top: 8px;">
+                            $0.00</div>
+                    </div>
+                    <div class="card-desktop" style="border-left: 5px solid var(--accent-orange);">
+                        <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Dalabaadka (Orders)</div>
+                        <div id="statOrders" style="font-size: 2rem; font-weight: 800; color: #333; margin-top: 8px;">0
+                        </div>
+                    </div>
+                    <div class="card-desktop" style="border-left: 5px solid #1565C0;">
+                        <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Hilibka Baxay (Kg Sold)</div>
+                        <div id="statItems" style="font-size: 2rem; font-weight: 800; color: #333; margin-top: 8px;">0
+                            Kg</div>
+                    </div>
+                    <div class="card-desktop" style="border-left: 5px solid #EF6C00;">
+                        <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Weli Waa La Wadaa</div>
+                        <div id="statPending" style="font-size: 2rem; font-weight: 800; color: #333; margin-top: 8px;">0
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div id="productsSection" class="section">
+                <div style="margin-bottom: 20px;">
+                    <button class="btn-add" onclick="openModal()">
+                        <span class="material-icons-round">add</span> Ku dar Badeeco Cusub
+                    </button>
+                </div>
+
+                <div class="card-desktop">
+                    <h3
+                        style="margin: 0 0 16px 0; font-size: 1.2rem; border-bottom: 1px solid #eee; padding-bottom: 12px; color: #333;">
+                        Liiska Cuntooyinka</h3>
+                    <div id="productList" class="grid-container">
+                        <!-- Dynamic products will load here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="ordersSection" class="section">
+                <div id="orderList" class="grid-container">
+                    <!-- Dynamic orders will load here -->
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div id="usersSection" class="section">
+                <div class="card-desktop">
+                    <h3
+                        style="margin: 0 0 16px 0; font-size: 1.2rem; border-bottom: 1px solid #eee; padding-bottom: 12px; color: #333;">
+                        Dadka Is-diiwaangaliyey</h3>
+                    <div id="userList" class="grid-container">
+                        <!-- Dynamic users will load here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 id="modalTitle" style="font-size: 1.4rem; color: #333; margin:0;">Ku dar Cunto</h2>
+                <span class="material-icons-round" style="cursor: pointer; color: #999;"
+                    onclick="closeModal()">close</span>
+            </div>
+
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                <div class="input-group">
+                    <label>Magaca Cuntada</label>
+                    <input type="text" id="productName" required placeholder="e.g. Hilib Geel">
+                </div>
+                <div class="input-group">
+                    <label>Qiimaha (USD)</label>
+                    <input type="number" id="productPrice" required step="0.01" placeholder="e.g. 8.00">
+                </div>
+                <div class="input-group">
+                    <label>Sawirka Cuntada</label>
+                    <input type="file" id="productImage" accept="image/*" style="padding: 10px; background:#fafafa;">
+                </div>
+                <button type="button" class="btn-add" style="width: 100%; justify-content: center; margin-top: 10px;"
+                    onclick="saveProduct()">
+                    Keydi Macluumaadka
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Restrict Access
+        if (localStorage.getItem('hilib_admin_logged_in') !== 'true') {
+            window.location.href = 'admin-login.html';
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('hilib_admin_logged_in');
+            window.location.href = 'admin-login.html';
+        }
+
+        // Init products
+        let products = JSON.parse(localStorage.getItem('adminProducts'));
+        if (products && products.length > 0) {
+            let modified = false;
+            products.forEach(p => {
+                if (p.image && p.image.includes('file:///')) {
+                    modified = true;
+                    if (p.image.includes('wagyu_steak')) p.image = 'images/wagyu_steak.png';
+                    else if (p.image.includes('camel_meat')) p.image = 'images/camel_meat.png';
+                    else if (p.image.includes('goat_meat')) p.image = 'images/goat_meat.png';
+                }
+            });
+            if (modified) {
+                localStorage.setItem('adminProducts', JSON.stringify(products));
+            }
+        }
+
+        if (!products || products.length === 0 || (products.length > 0 && products[0].name === "Hilib Geel / Camel") || (products.length > 0 && products[0].image && products[0].image.includes('file:///'))) {
+            products = [
+                { id: 1, name: "Hilib Lo'da oo Daray ah", price: "84.00", image: "images/wagyu_steak.png" },
+                { id: 2, name: "Hilib Geel Tayo Sare Leh", price: "22.50", image: "images/camel_meat.png" },
+                { id: 3, name: "Hilib Ari oo Nadiif ah", price: "15.00", image: "images/goat_meat.png" }
+            ];
+            localStorage.setItem('adminProducts', JSON.stringify(products));
+        }
+
+        function saveToStorage() { localStorage.setItem('adminProducts', JSON.stringify(products)); }
+
+        let currentUploadedImageBase64 = null;
+        document.getElementById('productImage').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (evt) { currentUploadedImageBase64 = evt.target.result; }
+                reader.readAsDataURL(file);
+            } else {
+                currentUploadedImageBase64 = null;
+            }
+        });
+
+        function renderProducts() {
+            const list = document.getElementById('productList');
+            list.innerHTML = '';
+            if (products.length === 0) {
+                list.innerHTML = '<p style="color: #666; text-align: center; grid-column: 1/-1;">Wax cunto ah lagama helin.</p>';
+                return;
+            }
+            products.forEach(p => {
+                list.innerHTML += `
+                    <div style="border: 1px solid #eee; border-radius: 12px; padding: 16px; background: #fafafa;">
+                        <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 16px;">
+                            <img src="${p.image.replace('../', '')}" alt="${p.name}" style="width: 60px; height: 60px; border-radius: 10px; object-fit: cover;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 1.05rem; color: #333;">${p.name}</div>
+                                <div style="color: var(--accent-orange); font-weight: 700; font-size: 1rem;">$${Number(p.price).toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-sm btn-edit" style="flex:1;" onclick="openModal(${p.id})">Edit</button>
+                            <button class="btn-sm btn-delete" style="flex:1;" onclick="deleteProduct(${p.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderOrders() {
+            const list = document.getElementById('orderList');
+            if (!list) return;
+            const orders = JSON.parse(localStorage.getItem('hilib_orders') || '[]');
+            list.innerHTML = '';
+            if (orders.length === 0) {
+                list.innerHTML = '<p style="color: #666; text-align: center; grid-column: 1/-1;">Wax dalab ah (orders) lagama helin.</p>';
+                return;
+            }
+            for (let i = orders.length - 1; i >= 0; i--) {
+                const order = orders[i];
+                let badgeClass = 'badge'; let badgeText = ''; let borderColor = '';
+                if (order.status === 'pending') { badgeClass += ' pending'; badgeText = 'Weli waa la wadaa'; borderColor = 'var(--accent-orange)'; }
+                else if (order.status === 'delivery') { badgeClass += ' out-for-delivery'; badgeText = 'Delivery soo saaray'; borderColor = '#1565C0'; }
+                else if (order.status === 'delivered') { badgeText = 'Waa la keenay'; borderColor = '#2E7D32'; }
+                else if (order.status === 'cancelled') { badgeClass += ' cancelled'; badgeText = 'La kansalay'; borderColor = '#C62828'; }
+
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    const priceNum = parseFloat(item.price.replace('$', ''));
+                    itemsHtml += `<div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px; color:#444;">
+                                      <span>${item.qty}Kg x ${item.name}</span>
+                                      <span style="font-weight: 700;">$${(priceNum * item.qty).toFixed(2)}</span>
+                                  </div>`;
+                });
+
+                list.innerHTML += `
+                <div class="order-card" style="border-left-color: ${borderColor};">
+                    <div class="order-header">
+                        <div>
+                            <span style="font-weight: 700; color: #333; font-size:1.1rem;">${order.id}</span>
+                            <div style="font-size: 0.85rem; color: #888; margin-top: 4px;">${order.date}</div>
+                        </div>
+                        <span class="${badgeClass}">${badgeText}</span>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color:#444;">
+                            <span class="material-icons-round" style="font-size: 20px; color: #888;">person</span>
+                            <span style="font-weight: 600;">${order.customer}</span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; color:#444;">
+                            <span class="material-icons-round" style="font-size: 20px; color: #888;">place</span>
+                            <span style="font-size: 0.9rem;">${order.address}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; color:#444;">
+                            <span class="material-icons-round" style="font-size: 20px; color: #888;">phone</span>
+                            <span style="font-size: 0.9rem; color: #1565C0; font-weight: 700;">${order.phone}</span>
+                        </div>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+                        <div style="font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; color:#333;">Dalabka:</div>
+                        ${itemsHtml}
+                        <div style="display: flex; justify-content: space-between; font-size: 1rem; border-top: 2px dashed #ddd; padding-top: 12px; margin-top: 12px;">
+                            <span style="font-weight: 700; color:#333;">Lacagta guud:</span>
+                            <span style="font-weight: 800; color: var(--accent-orange);">$${parseFloat(order.total).toFixed(2)}</span>
+                        </div>
+                    </div>
+                    ${order.status === 'cancelled' ? '' : `
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn-sm" style="flex:1; background: #FFF3E0; color: #EF6C00;" onclick="updateOrderStatus(${i}, 'pending')">Wali wadaa</button>
+                        <button class="btn-sm" style="flex:1; background: #E3F2FD; color: #1565C0;" onclick="updateOrderStatus(${i}, 'delivery')">Lasoo saaray</button>
+                        <button class="btn-sm" style="flex:1; background: #E8F5E9; color: #2E7D32;" onclick="updateOrderStatus(${i}, 'delivered')">Waa la keenay</button>
+                    </div>`}
+                </div>`;
+            }
+        }
+
+        function renderUsers() {
+            const list = document.getElementById('userList');
+            if (!list) return;
+            const users = JSON.parse(localStorage.getItem('hilib_users') || '[]');
+            list.innerHTML = '';
+            if (users.length === 0) {
+                list.innerHTML = '<p style="color: #666; text-align: center; grid-column: 1/-1;">Wax dad ah oo is-diiwaangaliyey ma jiraan.</p>';
+                return;
+            }
+            users.forEach(u => {
+                list.innerHTML += `
+                    <div style="padding: 16px; border: 1px solid #eee; background: #fafafa; border-radius: 12px; display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 50px; height: 50px; background: rgba(255,122,0,0.1); color: var(--accent-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <span class="material-icons-round" style="font-size:24px;">person</span>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 1.1rem; color: #333;">${u.name}</div>
+                            <div style="font-size: 0.9rem; color: #666; margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">
+                                <span style="display:flex; align-items:center; gap:6px;"><span class="material-icons-round" style="font-size: 16px;">phone</span> ${u.phone}</span>
+                                <span style="display:flex; align-items:flex-start; gap:6px;"><span class="material-icons-round" style="font-size: 16px;">place</span> ${u.address}</span>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #999; text-align: right; font-weight:600;">
+                            Diiwaanka<br><span style="color:#555;">${u.dateJoined || 'N/A'}</span>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function renderStats() {
+            const orders = JSON.parse(localStorage.getItem('hilib_orders') || '[]');
+            let totalRevenue = 0;
+            let totalOrders = 0;
+            let totalKg = 0;
+            let totalPending = 0;
+
+            orders.forEach(order => {
+                if (order.status !== 'cancelled') {
+                    totalRevenue += parseFloat(order.total || 0);
+                    totalOrders++;
+                    if (order.status === 'pending') totalPending++;
+
+                    order.items.forEach(item => {
+                        totalKg += parseInt(item.qty || 1);
+                    });
+                }
+            });
+
+            const sr = document.getElementById('statRevenue');
+            const so = document.getElementById('statOrders');
+            const si = document.getElementById('statItems');
+            const sp = document.getElementById('statPending');
+
+            if (sr) sr.innerText = '$' + totalRevenue.toFixed(2);
+            if (so) so.innerText = totalOrders;
+            if (si) si.innerText = totalKg + ' Kg';
+            if (sp) sp.innerText = totalPending;
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Section').classList.add('active');
+        }
+
+        function openModal(id = null) {
+            document.getElementById('productImage').value = '';
+            currentUploadedImageBase64 = null;
+            document.getElementById('productModal').classList.add('active');
+            if (id) {
+                document.getElementById('modalTitle').innerText = 'Bedel Macluumaadka';
+                const p = products.find(x => x.id === id);
+                document.getElementById('productId').value = p.id;
+                document.getElementById('productName').value = p.name;
+                document.getElementById('productPrice').value = p.price;
+                currentUploadedImageBase64 = p.image;
+            } else {
+                document.getElementById('modalTitle').innerText = 'Ku dar Cunto';
+                document.getElementById('productId').value = '';
+                document.getElementById('productName').value = '';
+                document.getElementById('productPrice').value = '';
+            }
+        }
+
+        function closeModal() { document.getElementById('productModal').classList.remove('active'); }
+
+        function saveProduct() {
+            const id = document.getElementById('productId').value;
+            const name = document.getElementById('productName').value;
+            const price = document.getElementById('productPrice').value;
+            const image = currentUploadedImageBase64 || 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&q=80&w=200';
+            if (!name || !price) { alert("Fadlan geli magaca iyo qiimaha!"); return; }
+            if (id) {
+                const index = products.findIndex(x => x.id === parseInt(id));
+                products[index] = { id: parseInt(id), name, price, image };
+            } else {
+                const newId = products.length ? Math.max(...products.map(x => x.id)) + 1 : 1;
+                products.push({ id: newId, name, price, image });
+            }
+            saveToStorage(); renderProducts(); closeModal();
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Ma hubtaa inaad tirto cuntadan?')) {
+                products = products.filter(x => x.id !== id);
+                saveToStorage(); renderProducts();
+            }
+        }
+
+        function updateOrderStatus(index, status) {
+            const orders = JSON.parse(localStorage.getItem('hilib_orders') || '[]');
+            if (orders[index]) {
+                orders[index].status = status;
+                localStorage.setItem('hilib_orders', JSON.stringify(orders));
+                renderOrders();
+                renderStats();
+            }
+        }
+
+        renderProducts(); renderOrders(); renderUsers(); renderStats(); saveToStorage();
+    </script>
+</body>
+
+</html>

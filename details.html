@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Details - Hilib Delivery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-left: 4px;
+        }
+        .input-group input {
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.8);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <a href="profile.html" class="icon-button" style="text-decoration: none;"><span class="material-icons-round">arrow_back</span></a>
+            <h1 style="font-size: 1.25rem;">Macluumaadkaaga</h1>
+            <div style="width: 44px;"></div> <!-- Spacer -->
+        </header>
+
+        <main class="content" style="padding-top: 10px; padding-bottom: 40px;">
+            <div style="display: flex; justify-content: center; margin-bottom: 30px; margin-top: 10px;">
+                <div style="position: relative;">
+                    <div style="width: 100px; height: 100px; background: rgba(255,122,0,0.1); color: var(--accent-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-soft);">
+                        <span class="material-icons-round" style="font-size: 54px;">person</span>
+                    </div>
+                    <button style="position: absolute; bottom: 0; right: 0; width: 32px; height: 32px; background: var(--accent-orange); color: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-soft); cursor: pointer; transition: transform 0.2s;" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform='scale(1)'" onclick="alert('Bedelida sawirka dhawaan ayay imaanaysaa!')">
+                        <span class="material-icons-round" style="font-size: 18px;">edit</span>
+                    </button>
+                </div>
+            </div>
+
+            <form id="detailsForm" onsubmit="event.preventDefault(); alert('Macluumaadka si guul leh ayaa loo keydiyay!'); window.location.href='profile.html';">
+                <div class="input-group">
+                    <label for="fullName">Magaca Buuxa (Full Name)</label>
+                    <input type="text" id="fullName" value="Omar K." required>
+                </div>
+
+                <div class="input-group">
+                    <label for="phone">Nambarka Telefoonka (Phone)</label>
+                    <input type="tel" id="phone" value="+252 61XXXXXXX" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Iimaylka (Email)</label>
+                    <input type="email" id="email" value="omar@example.com" placeholder="Geli iimaylkaaga" required>
+                </div>
+
+                <!-- Save Button -->
+                <button type="submit" style="width: 100%; margin-top: 32px; padding: 16px; border-radius: 12px; border: none; background: var(--accent-orange); color: white; font-weight: 700; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(255,122,0,0.3); transition: transform 0.2s, box-shadow 0.2s;" onmousedown="this.style.transform='scale(0.98)'; this.style.boxShadow='0 2px 6px rgba(255,122,0,0.2)'" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(255,122,0,0.3)'">
+                    Keydi Macluumaadka (Save)
+                </button>
+            </form>
+        </main>
+    </div>
+</body>
+</html>
