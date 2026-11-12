@@ -45,6 +45,8 @@
         <div class="modal-content card">
             <h2 style="font-size: 1.2rem; color: var(--dark-brown); margin-bottom: 20px;">Dhamaystir Dalabkaaga</h2>
             
+            <div id="checkout-error-msg" style="display: none; background: #FFEBEE; color: #C62828; padding: 12px 14px; border-radius: 12px; font-size: 0.9rem; margin-bottom: 16px; font-weight: 600; border-left: 4px solid #C62828; line-height: 1.4;"></div>
+
             <div class="input-group">
                 <label for="phone-input">Numberka Lacagta (EVC / Zaad)</label>
                 <div class="input-wrapper">
@@ -53,11 +55,34 @@
                 </div>
             </div>
 
-            <div class="input-group">
-                <label for="address-input">Cinwaanka (Address)</label>
-                <div class="input-wrapper">
-                    <span class="material-icons-round">place</span>
-                    <input type="text" id="address-input" placeholder="Tusaale: Degmada Hodan...">
+            <!-- Detailed 3-part Address: Degmada, Xaafadda, Waddada -->
+            <div style="margin-top: 16px;">
+                <label style="display: block; font-size: 0.9rem; font-weight: 700; color: var(--dark-brown); margin-bottom: 8px;">
+                    Cinwaanka Loo Wadaa (Address)
+                </label>
+
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="district-input" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">1. Degmada (District) *</label>
+                    <div class="input-wrapper">
+                        <span class="material-icons-round">location_city</span>
+                        <input type="text" id="district-input" placeholder="Tusaale: Yaqshiid ama Degmada Yaqshiid">
+                    </div>
+                </div>
+
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="neighborhood-input" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">2. Xaafadda (Neighborhood) *</label>
+                    <div class="input-wrapper">
+                        <span class="material-icons-round">holiday_village</span>
+                        <input type="text" id="neighborhood-input" placeholder="Tusaale: Mahad Alle ama Xaafadda Mahad Alle">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="street-input" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">3. Waddada / Jiheynta (Street) *</label>
+                    <div class="input-wrapper">
+                        <span class="material-icons-round">edit_road</span>
+                        <input type="text" id="street-input" placeholder="Tusaale: Waddada Magaceeda ama Laamiga agtiisa">
+                    </div>
                 </div>
             </div>
 
@@ -149,20 +174,47 @@
                     }
 
                     // Auto fill user details if available
+                    const errorEl = document.getElementById('checkout-error-msg');
+                    if (errorEl) errorEl.style.display = 'none';
+
                     const users = JSON.parse(localStorage.getItem('hilib_users') || '[]');
                     const fullUser = users.find(u => u.phone === currentUser.phone);
                     if(fullUser) {
                         document.getElementById('phone-input').value = fullUser.phone || '';
-                        document.getElementById('address-input').value = fullUser.address || '';
+                        if(fullUser.address) {
+                            const parts = fullUser.address.split(',').map(s => s.trim());
+                            if(parts.length >= 3) {
+                                document.getElementById('district-input').value = parts[0];
+                                document.getElementById('neighborhood-input').value = parts[1];
+                                document.getElementById('street-input').value = parts.slice(2).join(', ');
+                            } else if(parts.length === 2) {
+                                document.getElementById('district-input').value = parts[0];
+                                document.getElementById('neighborhood-input').value = parts[1];
+                            } else {
+                                document.getElementById('district-input').value = parts[0];
+                            }
+                        }
                     }
 
                     checkoutModal.classList.add('show-modal');
                 });
             }
 
+            function showCheckoutError(msg) {
+                const errorEl = document.getElementById('checkout-error-msg');
+                if (errorEl) {
+                    errorEl.innerText = msg;
+                    errorEl.style.display = 'block';
+                } else {
+                    alert(msg);
+                }
+            }
+
             if(cancelBtn) {
                 cancelBtn.addEventListener('click', () => {
                     checkoutModal.classList.remove('show-modal');
+                    const errorEl = document.getElementById('checkout-error-msg');
+                    if (errorEl) errorEl.style.display = 'none';
                 });
             }
 
@@ -171,12 +223,36 @@
                     if(cart.length === 0) return;
                     
                     const phoneObj = document.getElementById('phone-input').value.trim();
-                    const addrObj = document.getElementById('address-input').value.trim();
+                    const districtObj = document.getElementById('district-input').value.trim();
+                    const neighborhoodObj = document.getElementById('neighborhood-input').value.trim();
+                    const streetObj = document.getElementById('street-input').value.trim();
                     
-                    if(!phoneObj || !addrObj) {
-                        alert("Fadlan geli Lambarkaaga iyo Cinwaankaaga (Address-ka) inta aadan xaqiijin.");
+                    if(!phoneObj) {
+                        showCheckoutError("Fadlan geli Numberkaaga Lacagta (EVC / Zaad)!");
                         return;
                     }
+
+                    // Hubi degmada oo kaliya (Ma ogolaaneyno degmada oo qura):
+                    if(districtObj && (!neighborhoodObj || !streetObj)) {
+                        showCheckoutError("Ma ogolaaneyno degmada oo kaliya! Fadlan sheeg Degmada, Xaafadda, iyo Waddada.");
+                        return;
+                    }
+
+                    // Hubi in dhammaan 3-da la wada buuxiyey:
+                    if(!districtObj || !neighborhoodObj || !streetObj) {
+                        showCheckoutError("Fadlan dhamaystir cinwaanka: Sheeg Degmada, Xaafadda, iyo Waddada!");
+                        return;
+                    }
+                    
+                    const errorEl = document.getElementById('checkout-error-msg');
+                    if (errorEl) errorEl.style.display = 'none';
+
+                    // Format full address: "Degmada Yaqshiid, Xaafadda Mahad Alle, Waddada Magaceeda"
+                    const cleanDistrict = districtObj.toLowerCase().startsWith('degmada') ? districtObj : `Degmada ${districtObj}`;
+                    const cleanNeighborhood = (neighborhoodObj.toLowerCase().startsWith('xaafadda') || neighborhoodObj.toLowerCase().startsWith('xaafada')) ? neighborhoodObj : `Xaafadda ${neighborhoodObj}`;
+                    const cleanStreet = (streetObj.toLowerCase().startsWith('waddada') || streetObj.toLowerCase().startsWith('wadada')) ? streetObj : `Waddada ${streetObj}`;
+                    
+                    const fullAddress = `${cleanDistrict}, ${cleanNeighborhood}, ${cleanStreet}`;
                     
                     confirmBtn.innerText = 'Waa la dirayaa...';
                     confirmBtn.style.opacity = '0.8';
@@ -193,7 +269,7 @@
                         date: new Date().toLocaleString(),
                         customer: customerName,
                         phone: phoneObj,
-                        address: addrObj,
+                        address: fullAddress,
                         items: cart,
                         total: totalVal,
                         status: 'pending' // 'pending', 'delivery', 'delivered'
